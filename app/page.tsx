@@ -12,7 +12,6 @@ import {
   Download,
   Sparkles,
   ShieldCheck,
-  Github,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -147,21 +146,11 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 border-b border-zinc-200/80 bg-[#f7f7f5]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-screen-xl items-center justify-between px-6 py-4">
           <Brand />
-          <div className="flex items-center gap-3">
-            <a
-              href="https://github.com/Richology/insup"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex size-10 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-500 transition-colors hover:text-zinc-900"
-            >
-              <Github className="size-4" />
-            </a>
-            <Link href="/workspace">
-              <Button className="rounded-full bg-zinc-900 px-6 text-white hover:bg-zinc-800">
-                进入工作台
-              </Button>
-            </Link>
-          </div>
+          <Link href="/workspace">
+            <Button className="rounded-full bg-zinc-900 px-6 text-white hover:bg-zinc-800">
+              进入工作台
+            </Button>
+          </Link>
         </div>
       </header>
 
@@ -207,14 +196,6 @@ export default function LandingPage() {
                     立即开始
                   </Button>
                 </Link>
-                <a
-                  href="https://github.com/Richology/insup"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex h-12 items-center rounded-full border border-zinc-200 bg-white px-6 text-sm font-bold text-zinc-700 transition-colors hover:border-zinc-300 hover:text-zinc-950"
-                >
-                  查看仓库
-                </a>
               </motion.div>
 
               <div className="grid gap-3 pt-4 sm:grid-cols-3">
@@ -312,9 +293,6 @@ export default function LandingPage() {
             <Link href="/workspace" className="transition-colors hover:text-zinc-950">
               工作台
             </Link>
-            <a href="https://github.com/Richology/insup" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-zinc-950">
-              GitHub
-            </a>
             <a href="https://richology.cn" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-zinc-950">
               Richology
             </a>
