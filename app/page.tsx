@@ -321,7 +321,7 @@ export default function LandingPage() {
               <p className="text-sm font-bold uppercase tracking-[0.28em] text-zinc-400">Capabilities</p>
               <h2 className="text-3xl font-black tracking-tight text-zinc-950 md:text-5xl">
                 <span className="block">结构化思考、模型化输出</span>
-                <span className="block">通过 InSup 完成学习闭环</span>
+                <span className="block">InSup 为创作加速，为品质升级</span>
               </h2>
             </div>
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
