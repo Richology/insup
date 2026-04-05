@@ -742,6 +742,226 @@ export const WECHAT_THEMES: WechatTheme[] = [
     preview: '#0a0a0f',
   },
   {
+    id: 'minecraft',
+    name: 'Minecraft',
+    description: '像素霓虹、未来矿洞、AI 科幻感',
+    containerStyle: 'max-width:677px;margin:0 auto;background:#05070c;color:#d9e7ff;padding:34px 24px;font-family:"JetBrains Mono","Maple Mono","SFMono-Regular","PingFang SC","Microsoft YaHei",sans-serif;',
+    css: BASE_CSS + `
+      #insup-content {
+        background:
+          radial-gradient(circle at 14% 18%, rgba(0, 255, 157, 0.16), transparent 22%),
+          radial-gradient(circle at 86% 10%, rgba(126, 249, 255, 0.14), transparent 24%),
+          linear-gradient(rgba(126, 249, 255, 0.07) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(126, 249, 255, 0.07) 1px, transparent 1px),
+          linear-gradient(180deg, #0b1220 0%, #05070c 56%, #020409 100%);
+        background-size: auto, auto, 18px 18px, 18px 18px, 100% 100%;
+        color: #d9e7ff;
+        padding: 2em 1.45em;
+        line-height: 1.88;
+        letter-spacing: 0.01em;
+        box-shadow:
+          inset 0 0 0 1px rgba(126, 249, 255, 0.14),
+          inset 0 0 42px rgba(0, 255, 157, 0.04);
+      }
+
+      #insup-content h1,
+      #insup-content h2,
+      #insup-content h3,
+      #insup-content code,
+      #insup-content pre code,
+      #insup-content th,
+      #insup-content kbd {
+        font-family: "JetBrains Mono", "Maple Mono", "SFMono-Regular", "Microsoft YaHei", monospace;
+      }
+
+      #insup-content h1 {
+        margin: 1.4em 0 1em;
+        padding: 18px 20px;
+        font-size: 27px;
+        font-weight: 800;
+        line-height: 1.35;
+        color: #f3fbff;
+        background: linear-gradient(135deg, rgba(14, 28, 44, 0.96), rgba(8, 17, 28, 0.96));
+        border: 2px solid rgba(126, 249, 255, 0.78);
+        border-radius: 0;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        box-shadow:
+          6px 6px 0 rgba(0, 255, 157, 0.25),
+          0 0 28px rgba(126, 249, 255, 0.12);
+      }
+
+      #insup-content h2 {
+        margin: 2.2em 0 1em;
+        padding: 14px 16px;
+        font-size: 19px;
+        font-weight: 800;
+        color: #08131f;
+        background: linear-gradient(90deg, #7ef9ff 0%, #66ffd1 100%);
+        border: 2px solid #7ef9ff;
+        border-radius: 0;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        box-shadow: 5px 5px 0 rgba(18, 47, 71, 0.8);
+      }
+
+      #insup-content h3 {
+        margin: 1.7em 0 0.8em;
+        padding-left: 12px;
+        font-size: 16px;
+        font-weight: 800;
+        color: #8bff67;
+        border-left: 4px solid #8bff67;
+        letter-spacing: 0.06em;
+      }
+
+      #insup-content p,
+      #insup-content li,
+      #insup-content td,
+      #insup-content blockquote p {
+        font-family: "JetBrains Mono", "Maple Mono", "SFMono-Regular", "Microsoft YaHei", monospace;
+        color: #cad6ef;
+      }
+
+      #insup-content p {
+        margin: 1em 0;
+        line-height: 1.92;
+      }
+
+      #insup-content strong {
+        color: #08131f;
+        font-weight: 800;
+        background: linear-gradient(90deg, #8bff67, #7ef9ff);
+        padding: 0.12em 0.38em;
+        border-radius: 0;
+        box-shadow: 3px 3px 0 rgba(18, 47, 71, 0.78);
+      }
+
+      #insup-content em {
+        font-style: normal;
+        color: #8bff67;
+        box-shadow: inset 0 -0.35em 0 rgba(139, 255, 103, 0.18);
+      }
+
+      #insup-content a {
+        color: #7ef9ff;
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 4px;
+      }
+
+      #insup-content blockquote {
+        margin: 2em 0;
+        padding: 18px 20px;
+        background: linear-gradient(135deg, rgba(12, 24, 36, 0.92), rgba(5, 12, 21, 0.92));
+        border: 2px solid rgba(126, 249, 255, 0.42);
+        border-left: 6px solid #8bff67;
+        border-radius: 0;
+        box-shadow:
+          8px 8px 0 rgba(11, 32, 52, 0.9),
+          inset 0 0 0 1px rgba(139, 255, 103, 0.08);
+      }
+      #insup-content blockquote p {
+        margin: 0.45em 0;
+      }
+
+      #insup-content ul,
+      #insup-content ol {
+        margin: 1.2em 0;
+        padding-left: 1.7em;
+      }
+      #insup-content li {
+        margin: 0.55em 0;
+        line-height: 1.82;
+      }
+      #insup-content ul li {
+        list-style-type: square;
+      }
+      #insup-content li::marker {
+        color: #7ef9ff;
+      }
+
+      #insup-content hr {
+        border: none;
+        margin: 3em 0;
+        height: 4px;
+        background: repeating-linear-gradient(
+          90deg,
+          rgba(126, 249, 255, 0) 0 12px,
+          rgba(126, 249, 255, 0.92) 12px 24px,
+          rgba(139, 255, 103, 0.92) 24px 36px
+        );
+        box-shadow: 0 0 16px rgba(126, 249, 255, 0.16);
+      }
+
+      #insup-content code {
+        padding: 0.2em 0.5em;
+        color: #7ef9ff;
+        background: rgba(16, 29, 45, 0.92);
+        border: 1px solid rgba(126, 249, 255, 0.34);
+        border-radius: 0;
+      }
+
+      #insup-content pre {
+        background: linear-gradient(180deg, rgba(4, 10, 18, 0.98), rgba(2, 6, 12, 0.98));
+        border: 2px solid rgba(126, 249, 255, 0.26);
+        border-radius: 0;
+        box-shadow:
+          10px 10px 0 rgba(11, 32, 52, 0.9),
+          0 0 24px rgba(126, 249, 255, 0.08);
+      }
+      #insup-content pre code {
+        padding: 1.3em;
+        color: #d8ffe7;
+        background: transparent;
+        border: none;
+      }
+
+      #insup-content table {
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 2px solid rgba(126, 249, 255, 0.26);
+        border-radius: 0;
+        overflow: hidden;
+        box-shadow: 6px 6px 0 rgba(11, 32, 52, 0.9);
+      }
+      #insup-content th {
+        background: linear-gradient(90deg, #7ef9ff 0%, #8bff67 100%);
+        color: #07111a;
+        border: none;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      #insup-content td {
+        background: rgba(8, 15, 24, 0.92);
+        border-top: 1px solid rgba(126, 249, 255, 0.14);
+      }
+      #insup-content tr:nth-child(even) td {
+        background: rgba(11, 20, 31, 0.96);
+      }
+
+      #insup-content img {
+        border-radius: 0;
+        border: 2px solid rgba(126, 249, 255, 0.4);
+        box-shadow:
+          10px 10px 0 rgba(11, 32, 52, 0.9),
+          0 0 24px rgba(126, 249, 255, 0.08);
+      }
+
+      #insup-content kbd {
+        color: #08131f;
+        background: #8bff67;
+        border-color: #8bff67;
+        border-bottom-color: #7ef9ff;
+        border-radius: 0;
+        box-shadow: 2px 2px 0 rgba(18, 47, 71, 0.78);
+      }
+    `,
+    preview: 'linear-gradient(135deg, #0b1220 0%, #05070c 45%, #10253b 100%)',
+  },
+  {
     id: 'claude',
     name: 'Claude Code',
     description: '暖黑终端感、克制橙色强调',

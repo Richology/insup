@@ -12,6 +12,7 @@ interface XHSThemePickerProps {
 const getThemeSignature = (themeId: string) => {
   if (themeId === 'book') return 'B';
   if (themeId === 'magazine') return 'M';
+  if (themeId === 'minecraft') return 'X';
   if (themeId === 'claude') return 'C';
   return 'D';
 };
