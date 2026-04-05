@@ -7,6 +7,7 @@ import { WECHAT_THEMES } from "@/lib/themes";
 // Visual swatches for each theme
 const THEME_SWATCHES: Record<string, { bg: string; accent: string }> = {
   default:   { bg: '#ffffff', accent: '#6366f1' },
+  book:      { bg: '#f5efe3', accent: '#9b7856' },
   magazine:  { bg: '#ffffff', accent: '#1a1a1a' },
   crimson:    { bg: '#ffffff', accent: '#555555' },
   green:     { bg: '#f0faf4', accent: '#07c160' },
@@ -16,6 +17,7 @@ const THEME_SWATCHES: Record<string, { bg: string; accent: string }> = {
 };
 
 const getThemeSignature = (themeId: string) => {
+  if (themeId === 'book') return 'B';
   if (themeId === 'magazine') return 'M';
   if (themeId === 'claude') return 'C';
   return 'D';

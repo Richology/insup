@@ -77,6 +77,177 @@ export const WECHAT_THEMES: WechatTheme[] = [
     preview: '#ffffff',
   },
   {
+    id: 'book',
+    name: '纸质书',
+    description: '暖纸纹理、旧书阅读感',
+    containerStyle: 'max-width:677px;margin:0 auto;font-family:Georgia,"Source Serif 4","Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif;color:#4f4337;background:#f5efe3;padding:36px 30px;',
+    css: BASE_CSS + `
+      #insup-content {
+        color: #4f4337;
+        font-family: Georgia, "Source Serif 4", "Noto Serif SC", "Source Han Serif SC", "STSong", "SimSun", serif;
+        line-height: 1.95;
+        background: #f5efe3;
+        background-image:
+          radial-gradient(rgba(134, 108, 79, 0.08) 0.6px, transparent 0.8px),
+          radial-gradient(rgba(255,255,255,0.35) 0.4px, transparent 0.7px),
+          linear-gradient(180deg, rgba(255,255,255,0.45), rgba(226, 210, 185, 0.28)),
+          linear-gradient(90deg, rgba(140, 102, 68, 0.04), transparent 18%, transparent 82%, rgba(140, 102, 68, 0.04));
+        background-size: 10px 10px, 14px 14px, 100% 100%, 100% 100%;
+        box-shadow:
+          inset 0 0 0 1px rgba(120, 96, 67, 0.08),
+          inset 0 18px 40px rgba(255,255,255,0.18);
+      }
+
+      #insup-content h1 {
+        color: #3f3125;
+        font-size: 29px;
+        font-weight: 700;
+        text-align: center;
+        line-height: 1.3;
+        letter-spacing: 0.08em;
+        margin: 1.35em 0 1em;
+      }
+      #insup-content h1::before,
+      #insup-content h1::after {
+        content: "";
+        display: block;
+        width: 72px;
+        height: 1px;
+        background: rgba(140, 102, 68, 0.42);
+        margin: 0 auto 14px;
+      }
+      #insup-content h1::after {
+        margin: 14px auto 0;
+      }
+
+      #insup-content h2 {
+        color: #47382b;
+        font-size: 20px;
+        font-weight: 700;
+        margin: 2.2em 0 1em;
+        padding: 0.35em 0 0.35em 0.9em;
+        border-left: 3px solid #9b7856;
+        background: linear-gradient(90deg, rgba(155, 120, 86, 0.12), transparent 75%);
+      }
+
+      #insup-content h3 {
+        color: #6b5137;
+        font-size: 16px;
+        font-weight: 700;
+        margin: 1.8em 0 0.8em;
+        letter-spacing: 0.04em;
+      }
+      #insup-content h3::before {
+        content: "§ ";
+        color: #9b7856;
+      }
+
+      #insup-content p {
+        font-size: 15.5px;
+        color: #54483b;
+        line-height: 2;
+        text-align: justify;
+        text-indent: 2em;
+        margin: 0.55em 0;
+      }
+      #insup-content p:first-of-type {
+        text-indent: 0;
+      }
+
+      #insup-content blockquote {
+        margin: 2em 0;
+        padding: 16px 20px;
+        background: rgba(147, 116, 82, 0.08);
+        border-left: 3px solid #9b7856;
+        color: #5b4937;
+        border-radius: 0 12px 12px 0;
+      }
+      #insup-content blockquote p {
+        margin: 0.4em 0;
+        text-indent: 0;
+        color: #5b4937;
+      }
+
+      #insup-content strong {
+        color: #3f3125;
+        font-weight: 700;
+        background: linear-gradient(transparent 62%, rgba(184, 151, 113, 0.24) 62%);
+      }
+      #insup-content em {
+        color: #7e5f40;
+      }
+      #insup-content a {
+        color: #7a5635;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+
+      #insup-content hr {
+        border: none;
+        margin: 2.8em 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(139, 104, 68, 0.55), transparent);
+      }
+
+      #insup-content ul,
+      #insup-content ol {
+        margin: 1.15em 0;
+      }
+      #insup-content li {
+        color: #54483b;
+        margin: 0.5em 0;
+      }
+      #insup-content li::marker {
+        color: #9b7856;
+      }
+
+      #insup-content table {
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+        border: 1px solid rgba(139, 104, 68, 0.14);
+        background: rgba(255,255,255,0.2);
+      }
+      #insup-content th {
+        background: rgba(155, 120, 86, 0.12);
+        color: #4b392b;
+        border-bottom: 1px solid rgba(139, 104, 68, 0.16);
+      }
+      #insup-content td {
+        color: #54483b;
+        border-top: 1px solid rgba(139, 104, 68, 0.1);
+      }
+      #insup-content tr:nth-child(even) td {
+        background: rgba(255,255,255,0.16);
+      }
+
+      #insup-content code {
+        background: rgba(139, 104, 68, 0.09);
+        color: #6b4f34;
+      }
+      #insup-content pre {
+        background: rgba(88, 67, 46, 0.92);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+      }
+      #insup-content pre code {
+        color: #f4ead9;
+      }
+
+      #insup-content img {
+        border-radius: 10px;
+        border: 1px solid rgba(139, 104, 68, 0.14);
+        box-shadow: 0 10px 24px rgba(93, 73, 52, 0.12);
+      }
+
+      #insup-content kbd {
+        background: rgba(139, 104, 68, 0.1);
+        border-color: rgba(139, 104, 68, 0.22);
+        color: #5a4330;
+      }
+    `,
+    preview: 'linear-gradient(135deg, #f7f1e6 0%, #efe4d2 100%)',
+  },
+  {
     id: 'magazine',
     name: '杂志',
     description: '时尚杂志排版',

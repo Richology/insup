@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   FileText,
@@ -11,8 +10,10 @@ import {
   Download,
   Sparkles,
   ShieldCheck,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { InSupLockup } from "@/components/brand/insup-lockup";
 
 const features = [
   {
@@ -49,14 +50,17 @@ const features = [
 
 const outputs = [
   {
+    kind: "wechat" as const,
     title: "公众号文章",
     desc: "面向长文发布，强调可读性与复制粘贴后的样式保持。",
   },
   {
+    kind: "poster" as const,
     title: "社交媒体卡片",
     desc: "适用于知识切片、观点摘要和社交传播的视觉输出。",
   },
   {
+    kind: "slide" as const,
     title: "PPT 课件页",
     desc: "适用于课程演示、讲义配图和知识表达的横版内容输出。",
   },
@@ -65,14 +69,7 @@ const outputs = [
 function Brand() {
   return (
     <Link href="/" className="flex items-center gap-3">
-      <Image
-        src="/insup-lockup.svg"
-        alt="InSup"
-        width={154}
-        height={36}
-        className="h-8 w-auto object-contain"
-        priority
-      />
+      <InSupLockup priority />
     </Link>
   );
 }
@@ -136,6 +133,109 @@ function AbstractPreview() {
             </div>
             <div className="h-24 rounded-[20px] bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-700" />
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OutputPreview({
+  kind,
+}: {
+  kind: "wechat" | "poster" | "slide";
+}) {
+  if (kind === "poster") {
+    return (
+      <div className="relative mb-6 h-44 overflow-hidden rounded-[24px] border border-zinc-200 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-700 px-4 py-4">
+        <div className="flex h-full items-center justify-center gap-2.5">
+          {[
+            { tone: "bg-[#f4efe8]", accent: "bg-zinc-900", lines: "bg-zinc-300" },
+            { tone: "bg-[#f8f6f1]", accent: "bg-zinc-900", lines: "bg-zinc-300" },
+            { tone: "bg-[#f3eee6]", accent: "bg-zinc-900", lines: "bg-zinc-300" },
+          ].map((phone, phoneIndex) => (
+            <React.Fragment key={phoneIndex}>
+              <div
+                className={`flex h-[132px] w-[76px] shrink-0 flex-col rounded-[24px] border border-white/12 ${phone.tone} p-2.5 shadow-[0_22px_40px_-22px_rgba(0,0,0,0.85)] ${phoneIndex === 1 ? "scale-[1.02]" : "opacity-90"}`}
+              >
+                <div className="mx-auto mb-2 h-1.5 w-8 rounded-full bg-zinc-900/70" />
+                <div className="mb-2 h-11 rounded-[14px] bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-700" />
+                <div className="space-y-1.5">
+                  <div className={`h-1.5 w-4/5 rounded-full ${phone.accent}`} />
+                  <div className={`h-1.5 w-full rounded-full ${phone.lines}`} />
+                  <div className={`h-1.5 w-3/4 rounded-full ${phone.lines}`} />
+                </div>
+                <div className="mt-auto flex items-center justify-center gap-1.5 pt-2">
+                  <span className={`size-1.5 rounded-full ${phoneIndex === 0 ? "bg-zinc-900" : "bg-zinc-300"}`} />
+                  <span className={`size-1.5 rounded-full ${phoneIndex === 1 ? "bg-zinc-900" : "bg-zinc-300"}`} />
+                  <span className={`size-1.5 rounded-full ${phoneIndex === 2 ? "bg-zinc-900" : "bg-zinc-300"}`} />
+                </div>
+              </div>
+              {phoneIndex < 2 ? (
+                <div className="flex h-full items-center">
+                  <ChevronRight className="size-5 text-white/45" />
+                </div>
+              ) : null}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (kind === "slide") {
+    return (
+      <div className="mb-6 h-44 overflow-hidden rounded-[24px] border border-zinc-200 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-700 p-4">
+        <div className="flex h-full items-center justify-center">
+          <div className="aspect-[16/9] w-full max-w-[264px] overflow-hidden rounded-[20px] border border-white/12 bg-[#f7f4ef] p-3 shadow-[0_24px_55px_-22px_rgba(0,0,0,0.85)]">
+            <div className="flex h-full flex-col">
+              <div className="mb-2 flex items-center justify-between">
+                <div className="h-2 w-12 rounded-full bg-zinc-300" />
+                <div className="flex gap-1.5">
+                  <span className="size-2 rounded-full bg-zinc-300" />
+                  <span className="size-2 rounded-full bg-zinc-300" />
+                  <span className="size-2 rounded-full bg-zinc-900" />
+                </div>
+              </div>
+              <div className="grid min-h-0 flex-1 grid-cols-[1.25fr_0.75fr] gap-2 rounded-[16px] bg-white/80 p-2.5">
+                <div className="flex min-w-0 flex-col justify-between">
+                  <div className="space-y-1.5">
+                    <div className="h-2.5 w-2/3 rounded-full bg-zinc-900" />
+                    <div className="h-2 w-full rounded-full bg-zinc-300" />
+                    <div className="h-2 w-5/6 rounded-full bg-zinc-200" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="h-5 rounded-lg bg-zinc-100" />
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <div className="h-5 rounded-lg bg-zinc-100" />
+                      <div className="h-5 rounded-lg bg-zinc-50" />
+                    </div>
+                  </div>
+                </div>
+                <div className="min-h-0 rounded-[14px] bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-700 p-2 text-white">
+                  <div className="mb-1.5 h-2 w-8 rounded-full bg-white/35" />
+                  <div className="flex h-[44px] items-end gap-1">
+                    <div className="w-1/4 rounded-t-md bg-white/35" style={{ height: "34%" }} />
+                    <div className="w-1/4 rounded-t-md bg-white/55" style={{ height: "54%" }} />
+                    <div className="w-1/4 rounded-t-md bg-white/80" style={{ height: "78%" }} />
+                    <div className="w-1/4 rounded-t-md bg-white/45" style={{ height: "44%" }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mb-6 h-44 rounded-[24px] border border-zinc-200 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-700 p-5 text-white">
+      <div className="flex h-full flex-col justify-between">
+        <div className="h-2.5 w-12 rounded-full bg-white/25" />
+        <div className="space-y-2">
+          <div className="h-3 w-2/3 rounded-full bg-white" />
+          <div className="h-3 w-full rounded-full bg-white/40" />
+          <div className="h-3 w-4/5 rounded-full bg-white/25" />
         </div>
       </div>
     </div>
@@ -253,18 +353,9 @@ export default function LandingPage() {
               </p>
             </div>
             <div className="grid gap-5 lg:grid-cols-3">
-              {outputs.map((item, index) => (
+              {outputs.map((item) => (
                 <div key={item.title} className="rounded-[32px] border border-zinc-200 bg-white p-6 shadow-sm">
-                  <div className="mb-6 h-44 rounded-[24px] border border-zinc-200 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-700 p-5 text-white">
-                    <div className="flex h-full flex-col justify-between">
-                      <span className="text-xs font-bold uppercase tracking-[0.24em] text-white/60">0{index + 1}</span>
-                      <div className="space-y-2">
-                        <div className="h-3 w-2/3 rounded-full bg-white" />
-                        <div className="h-3 w-full rounded-full bg-white/40" />
-                        <div className="h-3 w-4/5 rounded-full bg-white/25" />
-                      </div>
-                    </div>
-                  </div>
+                  <OutputPreview kind={item.kind} />
                   <h3 className="mb-3 text-xl font-black tracking-tight text-zinc-950">{item.title}</h3>
                   <p className="text-sm leading-7 text-zinc-500">{item.desc}</p>
                 </div>

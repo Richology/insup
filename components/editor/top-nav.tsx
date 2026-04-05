@@ -18,11 +18,11 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ExportButton } from "@/components/editor/export-button";
+import { InSupLockup } from "@/components/brand/insup-lockup";
 import { POSTER_THEMES } from "@/lib/poster-themes";
 import { WECHAT_THEMES } from "@/lib/themes";
 import { POSTER_FONTS } from "@/lib/fonts";
@@ -110,14 +110,7 @@ export const TopNav = ({
     <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-zinc-900/10 bg-[#f7f7f5]/90 px-6 backdrop-blur-xl">
       <div className="flex items-center gap-3">
         <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-          <Image
-            src="/insup-lockup.svg"
-            alt="InSup"
-            width={148}
-            height={34}
-            className="h-8 w-auto object-contain"
-            priority
-          />
+          <InSupLockup priority />
         </Link>
 
         <div className="ml-1 flex items-center p-1 border border-zinc-900/10 rounded-2xl bg-zinc-50 shadow-inner">

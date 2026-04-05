@@ -35,9 +35,9 @@ export const metadata: Metadata = {
     siteName: "InSup",
     images: [
       {
-        url: "/insup-lockup.svg",
-        width: 760,
-        height: 180,
+        url: "/logo.png",
+        width: 980,
+        height: 360,
         alt: "InSup",
       },
     ],
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "InSup — Richology 内容排版工作台",
     description: "面向公众号、社交卡片与知识内容表达的 Markdown 工作台。",
-    images: ["/insup-lockup.svg"],
+    images: ["/logo.png"],
   },
 };
 
