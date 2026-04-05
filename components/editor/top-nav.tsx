@@ -114,21 +114,13 @@ export const TopNav = ({
       <div className="flex items-center gap-3">
         <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <Image
-            src="/insup-mark.svg"
-            alt="Logo"
-            width={32}
-            height={32}
-            className="size-8 object-contain"
+            src="/insup-lockup.svg"
+            alt="InSup"
+            width={148}
+            height={34}
+            className="h-8 w-auto object-contain"
             priority
           />
-          <div className="flex flex-col leading-none">
-            <span className="text-xl font-display font-black tracking-tighter text-zinc-900 uppercase">
-              InSup
-            </span>
-            <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-zinc-400">
-              Richology
-            </span>
-          </div>
         </Link>
 
         <Button

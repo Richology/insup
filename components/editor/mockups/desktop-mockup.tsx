@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 
 export const DesktopMockup = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -12,7 +13,13 @@ export const DesktopMockup = ({ children }: { children: React.ReactNode }) => {
           <div className="size-3 rounded-full bg-emerald-400" />
         </div>
         <div className="ml-4 flex h-7 flex-1 items-center rounded-md bg-white px-3 text-[11px] text-zinc-400 shadow-sm">
-          InSup
+          <Image
+            src="/insup-lockup.svg"
+            alt="InSup"
+            width={96}
+            height={22}
+            className="h-4 w-auto object-contain"
+          />
         </div>
       </div>
       <div className="h-[600px] overflow-y-auto p-8 bg-white">

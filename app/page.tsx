@@ -66,11 +66,14 @@ const outputs = [
 function Brand() {
   return (
     <Link href="/" className="flex items-center gap-3">
-      <Image src="/insup-mark.svg" alt="InSup" width={32} height={32} className="size-8" priority />
-      <div className="flex flex-col leading-none">
-        <span className="text-xl font-black tracking-tight text-zinc-950">InSup</span>
-        <span className="text-[10px] uppercase tracking-[0.28em] text-zinc-400">Richology</span>
-      </div>
+      <Image
+        src="/insup-lockup.svg"
+        alt="InSup"
+        width={154}
+        height={36}
+        className="h-8 w-auto object-contain"
+        priority
+      />
     </Link>
   );
 }
