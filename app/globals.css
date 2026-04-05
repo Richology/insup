@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Serif+SC:wght@400;700&family=ZCOOL+KuHei&family=Zhi+Mang+Xing&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/lxgw-wenkai-lite-webfont@1.1.0/style.css');
+@import "tailwindcss";
+
+
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: "Inter", "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "Fira Code", "SF Mono", "Monaco", "Consolas", monospace;
+  
+  --color-border: var(--border);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  
+  --color-studio-bg: #F9FAFB;
+  --color-studio-card: #FFFFFF;
+  --color-studio-ink: #1A1A1A;
+  --color-studio-accent: #6366F1;
+}
+
+:root {
+  --background: #F9FAFB;
+  --foreground: #101112;
+  --card: #ffffff;
+  --card-foreground: #101112;
+  --popover: #ffffff;
+  --popover-foreground: #101112;
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --accent: #f4f4f5;
+  --accent-foreground: #18181b;
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+  --border: rgba(0,0,0,0.06);
+  --input: #e4e4e7;
+  --ring: #6366f1;
+  --radius: 1.25rem;
+}@layer base {
+  * {
+    box-sizing: border-box;
+    border-color: var(--border);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    letter-spacing: -0.015em;
+    line-height: 1.6;
+  }
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* 玻璃拟态卡片 */
+.glass-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* 高级悬浮阴影 */
+.floating-shadow {
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08), 
+              0 8px 16px -8px rgba(0, 0, 0, 0.05);
+}
+
+/* 渐变文本 */
+.text-gradient {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 隐藏 MDXEditor 默认工具栏的生硬边框 */
+.mdxeditor-toolbar {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-radius: 16px !important;
+  padding: 6px 10px !important;
+  margin-bottom: 20px !important;
+  position: sticky !important;
+  top: 10px;
+  z-index: 50;
+  border: 1px solid rgba(0,0,0,0.05) !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.3s ease;
+}
+
+.mdx-editor-container [data-lexical-editor] {
+  padding-top: 20px !important;
+}
+
+/* Bento Grid Layout */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+/* Mesh Gradient Background */
+.mesh-bg {
+  background-color: #f9fafb;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.08) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(99, 102, 241, 0.08) 0px, transparent 50%);
+}
+
+.text-shimmer {
+  background: linear-gradient(
+    90deg,
+    #18181b 0%,
+    #18181b 40%,
+    #71717a 50%,
+    #18181b 60%,
+    #18181b 100%
+  );
+  background-size: 200% auto;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: shimmer 8s linear infinite;
+}
+
+@keyframes shimmer {
+  to { background-position: 200% center; }
+}
+
+.shadow-premium {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.03), 0 2px 4px rgba(0, 0, 0, 0.05), 0 12px 24px rgba(0, 0, 0, 0.05);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
