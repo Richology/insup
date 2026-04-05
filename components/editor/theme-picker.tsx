@@ -7,12 +7,18 @@ import { WECHAT_THEMES } from "@/lib/themes";
 // Visual swatches for each theme
 const THEME_SWATCHES: Record<string, { bg: string; accent: string }> = {
   default:   { bg: '#ffffff', accent: '#6366f1' },
-  elegant:   { bg: '#fdfaf6', accent: '#c8a96e' },
   magazine:  { bg: '#ffffff', accent: '#1a1a1a' },
   crimson:    { bg: '#ffffff', accent: '#555555' },
   green:     { bg: '#f0faf4', accent: '#07c160' },
   tech:      { bg: '#1a1a2e', accent: '#7c83fd' },
+  claude:    { bg: '#171412', accent: '#db9a5e' },
   rose:      { bg: '#fff1f2', accent: '#be123c' },
+};
+
+const getThemeSignature = (themeId: string) => {
+  if (themeId === 'magazine') return 'M';
+  if (themeId === 'claude') return 'C';
+  return 'D';
 };
 
 interface ThemePickerProps {
@@ -27,8 +33,7 @@ export const ThemePicker = ({ value, onChange, themes = WECHAT_THEMES }: ThemePi
       {themes.map(theme => {
         const swatch = THEME_SWATCHES[theme.id] ?? { bg: '#fff', accent: '#333' };
         const isActive = value === theme.id;
-        const isElegant = theme.id === 'elegant';
-        const isMagazine = theme.id === 'magazine';
+        const signature = getThemeSignature(theme.id);
 
         return (
           <button
@@ -57,9 +62,9 @@ export const ThemePicker = ({ value, onChange, themes = WECHAT_THEMES }: ThemePi
               </div>
               <div className={cn(
                 "absolute bottom-0 right-1 text-lg font-black opacity-[0.05] pointer-events-none select-none",
-                isElegant ? "font-serif" : "font-sans"
+                "font-sans"
               )}>
-                {isElegant ? 'A' : (isMagazine ? 'M' : 'D')}
+                {signature}
               </div>
               
               {isActive && (

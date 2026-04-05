@@ -66,6 +66,22 @@ export default function InSupEditor() {
 
   const activeTheme = getTheme(wechatTheme);
   const activePosterTheme = getPosterTheme(posterTheme);
+  const currentFontValue =
+    POSTER_FONTS.find((f) => f.id === posterFont)?.value ||
+    POSTER_FONTS[0].value;
+  const activeWechatThemeCss = `${activeTheme.css}
+    #insup-content {
+      font-family: ${currentFontValue} !important;
+    }
+  `;
+  const activeWechatContainerStyle = activeTheme.containerStyle.match(
+    /font-family:[^;]+;/,
+  )
+    ? activeTheme.containerStyle.replace(
+        /font-family:[^;]+;/,
+        `font-family:${currentFontValue};`,
+      )
+    : `${activeTheme.containerStyle}font-family:${currentFontValue};`;
   const isVisualMode = styleTheme === "poster" || styleTheme === "slide";
   const editorRef = useRef<EditorMethods>(null);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -217,7 +233,7 @@ export default function InSupEditor() {
       ) as HTMLElement | null;
       const target = insupContentEl ?? previewRef.current;
       const contentHtml = getInlinedHtml(target, { wechatOptimized: true });
-      const finalHtml = getWeChatHtml(contentHtml, activeTheme.containerStyle);
+      const finalHtml = getWeChatHtml(contentHtml, activeWechatContainerStyle);
       const textToCopy = showWordCount ? injectReadInfo(markdown) : markdown;
       const data = [
         new ClipboardItem({
@@ -232,7 +248,7 @@ export default function InSupEditor() {
       console.error("Copy failed:", err);
       setCopyStatus("error");
     }
-  }, [activeTheme.containerStyle, isVisualMode, markdown, showWordCount]);
+  }, [activeWechatContainerStyle, isVisualMode, markdown, showWordCount]);
 
   // 键盘快捷键支持
   useEffect(() => {
@@ -538,7 +554,7 @@ export default function InSupEditor() {
             previewMode={previewMode}
             styleTheme={styleTheme}
             html={html}
-            activeThemeCss={activeTheme.css}
+            activeThemeCss={activeWechatThemeCss}
             activeTheme={activeTheme}
             activePosterTheme={activePosterTheme}
             posterFont={posterFont}
@@ -603,13 +619,11 @@ export default function InSupEditor() {
           styleTheme === "slide"
             ? getPPTContentCSS(
                 activePosterTheme.css,
-                POSTER_FONTS.find((f) => f.id === posterFont)?.value ||
-                  POSTER_FONTS[0].value,
+                currentFontValue,
               )
             : getXHSContentCSS(
                 activePosterTheme.css,
-                POSTER_FONTS.find((f) => f.id === posterFont)?.value ||
-                  POSTER_FONTS[0].value,
+                currentFontValue,
               )
         }
         canvas={

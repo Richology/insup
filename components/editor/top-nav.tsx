@@ -346,83 +346,81 @@ export const TopNav = ({
           </AnimatePresence>
         </div>
 
-        {/* 字体选择器 (仅小红书模式) */}
-        {styleTheme !== "wechat" && (
-          <div className="relative" ref={fontPickerRef}>
-            <Button
-              variant="ghost"
-              size="sm"
+        {/* 字体选择器 */}
+        <div className="relative" ref={fontPickerRef}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "h-9 gap-2 rounded-xl px-3 transition-all duration-200 border border-zinc-200/60 bg-white/50 hover:bg-white hover:border-zinc-300 shadow-sm",
+              showFontPicker
+                ? "bg-white border-zinc-400 ring-2 ring-zinc-100"
+                : "",
+            )}
+            onClick={() => setShowFontPicker(!showFontPicker)}
+          >
+            <span
               className={cn(
-                "h-9 gap-2 rounded-xl px-3 transition-all duration-200 border border-zinc-200/60 bg-white/50 hover:bg-white hover:border-zinc-300 shadow-sm",
-                showFontPicker
-                  ? "bg-white border-zinc-400 ring-2 ring-zinc-100"
-                  : "",
+                "text-[12px] font-bold tracking-tight",
+                showFontPicker ? "text-zinc-900" : "text-zinc-600",
               )}
-              onClick={() => setShowFontPicker(!showFontPicker)}
             >
-              <span
-                className={cn(
-                  "text-[12px] font-bold tracking-tight",
-                  showFontPicker ? "text-zinc-900" : "text-zinc-600",
-                )}
-              >
-                {currentFont.name}
-              </span>
-              <ChevronDown
-                className={cn(
-                  "size-3 text-zinc-400 transition-transform duration-200",
-                  showFontPicker ? "rotate-180" : "",
-                )}
-              />
-            </Button>
-
-            <AnimatePresence>
-              {showFontPicker && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                  transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="absolute top-full right-0 mt-2 w-[200px] bg-white rounded-2xl shadow-[0_12px_40px_-12px_rgba(0,0,0,0.15)] border border-zinc-200 z-50 overflow-hidden"
-                >
-                  <div className="px-4 py-3 border-b border-zinc-100 bg-zinc-50/30">
-                    <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 uppercase">
-                      选择字体
-                    </h3>
-                  </div>
-                  <div className="p-2">
-                    <div className="grid grid-cols-1 gap-1">
-                      {POSTER_FONTS.map((font) => {
-                        const isActive = posterFont === font.id;
-                        return (
-                          <button
-                            key={font.id}
-                            onClick={() => {
-                              setPosterFont(font.id);
-                              setShowFontPicker(false);
-                            }}
-                            className={cn(
-                              "flex items-center justify-between p-2.5 rounded-xl transition-all duration-200",
-                              isActive
-                                ? "bg-indigo-50/50 text-indigo-600"
-                                : "hover:bg-zinc-50 text-zinc-600",
-                            )}
-                            style={{ fontFamily: font.value }}
-                          >
-                            <span className="text-[14px]">{font.name}</span>
-                            {isActive && (
-                              <Check className="size-4 text-indigo-500" />
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </motion.div>
+              {currentFont.name}
+            </span>
+            <ChevronDown
+              className={cn(
+                "size-3 text-zinc-400 transition-transform duration-200",
+                showFontPicker ? "rotate-180" : "",
               )}
-            </AnimatePresence>
-          </div>
-        )}
+            />
+          </Button>
+
+          <AnimatePresence>
+            {showFontPicker && (
+              <motion.div
+                initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+                className="absolute top-full right-0 mt-2 w-[200px] bg-white rounded-2xl shadow-[0_12px_40px_-12px_rgba(0,0,0,0.15)] border border-zinc-200 z-50 overflow-hidden"
+              >
+                <div className="px-4 py-3 border-b border-zinc-100 bg-zinc-50/30">
+                  <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 uppercase">
+                    选择字体
+                  </h3>
+                </div>
+                <div className="p-2">
+                  <div className="grid grid-cols-1 gap-1">
+                    {POSTER_FONTS.map((font) => {
+                      const isActive = posterFont === font.id;
+                      return (
+                        <button
+                          key={font.id}
+                          onClick={() => {
+                            setPosterFont(font.id);
+                            setShowFontPicker(false);
+                          }}
+                          className={cn(
+                            "flex items-center justify-between p-2.5 rounded-xl transition-all duration-200",
+                            isActive
+                              ? "bg-indigo-50/50 text-indigo-600"
+                              : "hover:bg-zinc-50 text-zinc-600",
+                          )}
+                          style={{ fontFamily: font.value }}
+                        >
+                          <span className="text-[14px]">{font.name}</span>
+                          {isActive && (
+                            <Check className="size-4 text-indigo-500" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       <div className="flex items-center gap-0.5 rounded-lg bg-zinc-100/50 p-0.5 border border-zinc-200/50">

@@ -77,66 +77,6 @@ export const WECHAT_THEMES: WechatTheme[] = [
     preview: '#ffffff',
   },
   {
-    id: 'elegant',
-    name: '典雅',
-    description: '典雅精致风格',
-    containerStyle: 'max-width:677px;margin:0 auto;font-family:Georgia, "Source Serif 4", "Noto Serif SC", "STSong", "SimSun", serif;color:#2c2c2c;background:#fdfaf6;padding:32px 24px;',
-    css: BASE_CSS + `
-      #insup-content { color: #2c2c2c; font-family: Georgia, "Source Serif 4", "Noto Serif SC", "STSong", "SimSun", serif; line-height: 1.9; background: #fdfaf6; }
-
-      /* 标题：居中 + 金色下划线装饰 */
-      #insup-content h1 {
-        color: #1a1a1a; text-align: center; font-size: 24px;
-        font-weight: 400; letter-spacing: 0.15em;
-        padding-bottom: 0.6em; margin-bottom: 0.4em;
-        background: linear-gradient(to right, transparent 20%, #c8a96e 20%, #c8a96e 80%, transparent 80%) bottom / 100% 1px no-repeat;
-      }
-      /* H1 下方小装饰符 */
-      #insup-content h1::after { content: '✦'; display: block; text-align: center; color: #c8a96e; font-size: 12px; margin-top: 8px; letter-spacing: 0.5em; }
-
-      #insup-content h2 {
-        color: #1a1a1a; font-size: 17px; font-weight: 600;
-        letter-spacing: 0.08em;
-        padding: 0 0 6px 0;
-        border-bottom: 1px solid #e0cfa8;
-        margin: 2em 0 0.8em;
-      }
-      #insup-content h2::before { content: '§ '; color: #c8a96e; font-weight: 400; }
-
-      #insup-content h3 { color: #3a3a3a; font-size: 15px; font-weight: 600; margin: 1.5em 0 0.5em; }
-      #insup-content h3::before { content: '◆ '; color: #c8a96e; font-size: 10px; vertical-align: middle; }
-
-      /* 段落首行缩进，且保持非常紧致的段间距，模拟真书排版 */
-      #insup-content p { text-indent: 2em; margin: 0.3em 0; line-height: 1.95; }
-
-      /* 引用：右侧竖线 + 斜体 + 淡金背景 */
-      #insup-content blockquote {
-        margin: 1.8em 0; padding: 14px 20px 14px 24px;
-        border-left: none; border-right: 3px solid #c8a96e;
-        background: #fdf6e8; color: #5a4a2a;
-        font-style: italic; text-align: right;
-      }
-      #insup-content blockquote p { text-indent: 0; margin: 0; }
-
-      #insup-content li::marker { color: #c8a96e; }
-      #insup-content strong { color: #1a1a1a; font-weight: 700; }
-      #insup-content em { color: #7a6040; }
-      #insup-content a { color: #9a7040; text-decoration: underline; text-underline-offset: 3px; }
-
-      /* 分割线：居中菱形 */
-      #insup-content hr { border: none; margin: 2.5em 0; text-align: center; }
-      #insup-content hr::after { content: '◇ ◆ ◇'; color: #c8a96e; font-size: 14px; letter-spacing: 0.4em; }
-
-      #insup-content th { background: #f5ead6; border: 1px solid #e0cfa8; color: #5a4a2a; font-weight: 600; }
-      #insup-content td { border: 1px solid #e8dcc0; color: #3a3a3a; }
-      #insup-content tr:nth-child(even) td { background: #fdf9f0; }
-      #insup-content code { background: #f5ead6; color: #8a5c20; border-radius: 3px; font-size: 85%; }
-      #insup-content pre code { background: #1e1e1e; color: #d4d4d4; }
-      #insup-content kbd { background: #f5ead6; border-color: #c8a96e; color: #5a4a2a; }
-    `,
-    preview: '#fdfaf6',
-  },
-  {
     id: 'magazine',
     name: '杂志',
     description: '时尚杂志排版',
@@ -629,6 +569,208 @@ export const WECHAT_THEMES: WechatTheme[] = [
       }
     `,
     preview: '#0a0a0f',
+  },
+  {
+    id: 'claude',
+    name: 'Claude Code',
+    description: '暖黑终端感、克制橙色强调',
+    containerStyle: 'max-width:677px;margin:0 auto;background:#171412;color:#e8dfd4;padding:32px 24px;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;',
+    css: BASE_CSS + `
+      #insup-content {
+        background: #171412;
+        color: #e8dfd4;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "PingFang SC", "Hiragino Sans GB", sans-serif;
+        padding: 2em 1.5em;
+        line-height: 1.9;
+        letter-spacing: 0.01em;
+        background-image:
+          radial-gradient(circle at top right, rgba(219, 154, 94, 0.10), transparent 26%),
+          linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+      }
+
+      #insup-content h1 {
+        color: #f7f1e7;
+        font-size: 30px;
+        font-weight: 760;
+        line-height: 1.18;
+        letter-spacing: -0.03em;
+        margin: 1.15em 0 0.9em;
+      }
+      #insup-content h1::after {
+        content: '';
+        display: block;
+        width: 72px;
+        height: 1px;
+        margin-top: 0.55em;
+        background: linear-gradient(90deg, rgba(219, 154, 94, 0.9), rgba(219, 154, 94, 0));
+      }
+
+      #insup-content h2 {
+        color: #f1e8dd;
+        font-size: 19px;
+        font-weight: 650;
+        margin: 2em 0 1em;
+        padding: 14px 16px;
+        background: #1d1917;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-left: 3px solid #db9a5e;
+        border-radius: 14px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      }
+
+      #insup-content h3 {
+        color: #e5b07d;
+        font-size: 15px;
+        font-weight: 650;
+        line-height: 1.6;
+        margin: 1.9em 0 0.7em;
+        letter-spacing: 0.02em;
+        font-family: "SFMono-Regular", "JetBrains Mono", "Fira Code", Consolas, monospace;
+        text-transform: uppercase;
+      }
+      #insup-content h3::before {
+        content: '> ';
+        color: rgba(229, 176, 125, 0.72);
+      }
+
+      #insup-content p {
+        color: #d1c5b7;
+        font-size: 15.5px;
+        line-height: 1.95;
+        margin: 1em 0;
+      }
+
+      #insup-content blockquote {
+        margin: 2em 0;
+        padding: 18px 20px;
+        background: #1d1917;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-left: 3px solid #db9a5e;
+        border-radius: 14px;
+        color: #ebe1d5;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+      }
+      #insup-content blockquote::before {
+        content: 'NOTE';
+        display: block;
+        margin-bottom: 10px;
+        color: #b8aa98;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        font-family: "SFMono-Regular", "JetBrains Mono", "Fira Code", Consolas, monospace;
+      }
+      #insup-content blockquote p {
+        margin: 0;
+        color: #ebe1d5;
+      }
+
+      #insup-content strong {
+        color: #fff7ee;
+        font-weight: 700;
+        box-shadow: inset 0 -0.45em 0 rgba(219, 154, 94, 0.16);
+      }
+      #insup-content em {
+        color: #e9c49f;
+        font-style: normal;
+      }
+      #insup-content a {
+        color: #efc08a;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(239, 192, 138, 0.40);
+      }
+
+      #insup-content hr {
+        border: none;
+        margin: 2.6em 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(219, 154, 94, 0.42), transparent);
+      }
+
+      #insup-content ul, #insup-content ol {
+        padding-left: 1.6em;
+      }
+      #insup-content li {
+        color: #d1c5b7;
+        margin: 0.55em 0;
+      }
+      #insup-content li::marker {
+        color: #db9a5e;
+      }
+
+      #insup-content table {
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        background: #1b1816;
+      }
+      #insup-content th {
+        background: #221d1a;
+        color: #f1e7db;
+        border-bottom: 1px solid rgba(219, 154, 94, 0.18);
+        font-weight: 650;
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      #insup-content td {
+        color: #d1c5b7;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      #insup-content tr:nth-child(even) td {
+        background: rgba(255, 255, 255, 0.015);
+      }
+
+      #insup-content code {
+        background: #221d1a;
+        color: #f3c693;
+        border: 1px solid rgba(219, 154, 94, 0.12);
+        padding: 0.2em 0.5em;
+        border-radius: 6px;
+        font-family: "SFMono-Regular", "JetBrains Mono", "Fira Code", Consolas, monospace;
+      }
+      #insup-content pre {
+        background: #11100f;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 18px 20px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      }
+      #insup-content pre::before {
+        content: 'claude_code';
+        display: block;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        color: #ac9d8c;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-family: "SFMono-Regular", "JetBrains Mono", "Fira Code", Consolas, monospace;
+      }
+      #insup-content pre code {
+        background: transparent;
+        border: none;
+        padding: 0;
+        color: #eadfce;
+      }
+
+      #insup-content img {
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+      }
+
+      #insup-content kbd {
+        background: #221d1a;
+        border-color: rgba(219, 154, 94, 0.22);
+        color: #efc08a;
+      }
+    `,
+    preview: '#171412',
   },
   {
     id: 'sketch',

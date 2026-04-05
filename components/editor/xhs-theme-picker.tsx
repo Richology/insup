@@ -9,6 +9,12 @@ interface XHSThemePickerProps {
   onSelectTheme: (themeId: string) => void;
 }
 
+const getThemeSignature = (themeId: string) => {
+  if (themeId === 'magazine') return 'M';
+  if (themeId === 'claude') return 'C';
+  return 'D';
+};
+
 export const XHSThemePicker: React.FC<XHSThemePickerProps> = ({
   currentTheme,
   onSelectTheme,
@@ -17,8 +23,7 @@ export const XHSThemePicker: React.FC<XHSThemePickerProps> = ({
     <div className="grid grid-cols-4 gap-4 p-2">
       {XHS_THEMES.map((theme) => {
         const isActive = currentTheme === theme.id;
-        const isElegant = theme.id === 'elegant';
-        const isMagazine = theme.id === 'magazine';
+        const signature = getThemeSignature(theme.id);
 
         return (
           <button
@@ -42,9 +47,9 @@ export const XHSThemePicker: React.FC<XHSThemePickerProps> = ({
               {/* Signature Character */}
               <div className={cn(
                 "absolute inset-0 flex items-center justify-center text-xl font-black opacity-[0.06] pointer-events-none select-none",
-                isElegant ? "font-serif" : "font-sans"
+                "font-sans"
               )}>
-                {isElegant ? 'A' : (isMagazine ? 'M' : 'D')}
+                {signature}
               </div>
             </div>
 

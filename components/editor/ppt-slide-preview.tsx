@@ -12,6 +12,7 @@ import type { PosterTheme } from "@/lib/poster-themes";
 import { POSTER_FONTS } from "@/lib/fonts";
 import { PPT_CONTENT_HEIGHT, PPT_SLIDE } from "@/config/constants";
 import { calculateSlides } from "@/lib/paging/engine";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { buildCanvasContentCSS } from "./canvas-content-css";
 
 export const PPT_SLIDE_CONTENT_ID = "slide-content";
@@ -121,6 +122,34 @@ export const PPTSlidePreview = forwardRef<
     setCurrent((prev) => Math.max(0, Math.min(slideCount - 1, prev + dir)));
   };
 
+  const goTo = (index: number) => {
+    setCurrent(Math.max(0, Math.min(slideCount - 1, index)));
+  };
+
+  const stopInteractionBubble = (event: React.SyntheticEvent) => {
+    event.stopPropagation();
+  };
+
+  const handleArrowClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    dir: 1 | -1,
+  ) => {
+    event.stopPropagation();
+    setIsDragging(false);
+    setDragOffset(0);
+    go(dir);
+  };
+
+  const handleDotClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    index: number,
+  ) => {
+    event.stopPropagation();
+    setIsDragging(false);
+    setDragOffset(0);
+    goTo(index);
+  };
+
   const onMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
     setStartX(e.clientX);
@@ -168,8 +197,7 @@ export const PPTSlidePreview = forwardRef<
   useImperativeHandle(ref, () => ({
     getSlidesCount: () => slideCount,
     getSlides: () => displaySlides,
-    goToSlide: (index: number) =>
-      setCurrent(Math.max(0, Math.min(slideCount - 1, index))),
+    goToSlide: (index: number) => goTo(index),
     getCurrentSlide: () => current,
     goPrev: () => setCurrent((prev) => Math.max(0, prev - 1)),
     goNext: () => setCurrent((prev) => Math.min(slideCount - 1, prev + 1)),
@@ -249,22 +277,55 @@ export const PPTSlidePreview = forwardRef<
         </div>
       </div>
 
-      <div
-        className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-2 rounded-full border border-white/70 bg-white/85 px-3 py-2 backdrop-blur"
-      >
-        {Array.from({ length: slideCount }).map((_, index) => (
-          <div
-            key={index}
-            className="rounded-full transition-all duration-300"
-            style={{
-              width: index === current ? 18 : 6,
-              height: 6,
-              background:
-                index === current ? "rgba(24,24,27,0.8)" : "rgba(24,24,27,0.2)",
-            }}
-          />
-        ))}
-      </div>
+      {slideCount > 1 && (
+        <div
+          className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/70 bg-white/88 px-2 py-2 backdrop-blur"
+          onMouseDown={stopInteractionBubble}
+          onTouchStart={stopInteractionBubble}
+          onClick={stopInteractionBubble}
+        >
+          <button
+            type="button"
+            aria-label="上一页"
+            disabled={current === 0}
+            onClick={(event) => handleArrowClick(event, -1)}
+            className="flex size-7 items-center justify-center rounded-full text-zinc-700 transition hover:bg-zinc-900/8 disabled:cursor-not-allowed disabled:opacity-35"
+          >
+            <ChevronLeft className="size-4" />
+          </button>
+
+          <div className="flex items-center gap-2 px-1">
+            {Array.from({ length: slideCount }).map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                aria-label={`切换到第 ${index + 1} 页`}
+                aria-pressed={index === current}
+                onClick={(event) => handleDotClick(event, index)}
+                className="rounded-full transition-all duration-300"
+                style={{
+                  width: index === current ? 18 : 6,
+                  height: 6,
+                  background:
+                    index === current
+                      ? "rgba(24,24,27,0.82)"
+                      : "rgba(24,24,27,0.2)",
+                }}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            aria-label="下一页"
+            disabled={current === slideCount - 1}
+            onClick={(event) => handleArrowClick(event, 1)}
+            className="flex size-7 items-center justify-center rounded-full text-zinc-700 transition hover:bg-zinc-900/8 disabled:cursor-not-allowed disabled:opacity-35"
+          >
+            <ChevronRight className="size-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 });

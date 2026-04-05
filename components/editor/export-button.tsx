@@ -88,7 +88,7 @@ export function ExportButton({ previewRef, markdown, fileName = "document" }: Ex
         )}
       >
         <Download className="size-3.5" />
-        导出
+        导出内容
       </Button>
 
       <AnimatePresence>
