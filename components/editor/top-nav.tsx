@@ -178,7 +178,7 @@ export const TopNav = ({
             }}
           >
             <MessageCircle className="size-4" />
-            公众号
+            长图文
           </Button>
           <Button
             variant="ghost"
@@ -195,7 +195,7 @@ export const TopNav = ({
             }}
           >
             <ImageIconLucide className="size-4" />
-            贴图
+            笔记卡片
           </Button>
           <Button
             variant="ghost"

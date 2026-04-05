@@ -43,7 +43,7 @@ const features = [
   },
   {
     title: "为洞察而设计",
-    desc: "视觉表达服务于研究、写作、课程与系统化知识输出。",
+    desc: "多种视觉风格主题满足个性化的内容展现需求。",
     icon: Sparkles,
   },
 ];
@@ -51,12 +51,12 @@ const features = [
 const outputs = [
   {
     kind: "wechat" as const,
-    title: "公众号文章",
+    title: "优质长文",
     desc: "面向长文发布，强调可读性与复制粘贴后的样式保持。",
   },
   {
     kind: "poster" as const,
-    title: "社交媒体卡片",
+    title: "笔记卡片",
     desc: "适用于知识切片、观点摘要和社交传播的视觉输出。",
   },
   {
@@ -276,7 +276,7 @@ export default function LandingPage() {
                 transition={{ delay: 0.1 }}
                 className="max-w-xl text-lg leading-8 text-zinc-500"
               >
-                InSup 是面向 Richology 内容体系的 Markdown 工作台，聚焦公众号排版、社交媒体卡片与 PPT 课件图输出。
+                InSup 支持自媒体从业者将灵感和洞察在全平台生根发芽
               </motion.p>
 
               <motion.div
@@ -287,16 +287,16 @@ export default function LandingPage() {
               >
                 <Link href="/workspace">
                   <Button className="h-12 rounded-full bg-zinc-900 px-8 text-sm font-bold text-white hover:bg-zinc-800">
-                    立即开始
+                    开始创作
                   </Button>
                 </Link>
               </motion.div>
 
               <div className="grid gap-3 pt-4 sm:grid-cols-3">
                 {[
-                  "公众号文章",
-                  "社交媒体卡片",
-                  "本地优先工作流",
+                  "优质长文",
+                  "笔记卡片",
+                  "教学课件",
                 ].map((item) => (
                   <div key={item} className="rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm font-semibold text-zinc-600 shadow-sm">
                     {item}
@@ -370,15 +370,7 @@ export default function LandingPage() {
           <div className="space-y-3">
             <Brand />
             <p className="text-sm text-zinc-500">
-              Markdown 内容排版工作台 ·{" "}
-              <a
-                href="https://richology.cn"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="transition-colors hover:text-zinc-950"
-              >
-                by Richology
-              </a>
+              自媒体内容排版工作台 · 了解开发者：安瑟 A11BERICH
             </p>
             <p className="text-xs uppercase tracking-[0.22em] text-zinc-400">insight.richology.cn</p>
           </div>

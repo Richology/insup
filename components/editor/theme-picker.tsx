@@ -11,7 +11,6 @@ const THEME_SWATCHES: Record<string, { bg: string; accent: string }> = {
   magazine:  { bg: '#ffffff', accent: '#1a1a1a' },
   crimson:    { bg: '#ffffff', accent: '#555555' },
   green:     { bg: '#f0faf4', accent: '#07c160' },
-  tech:      { bg: '#1a1a2e', accent: '#7c83fd' },
   minecraft: { bg: '#0b1220', accent: '#7ef9ff' },
   claude:    { bg: '#171412', accent: '#db9a5e' },
   rose:      { bg: '#fff1f2', accent: '#be123c' },

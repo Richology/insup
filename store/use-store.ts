@@ -134,14 +134,17 @@ export const useStore = create<AppState>()(
     }),
     {
       name: 'insup-storage',
-      version: 1,
+      version: 2,
       migrate: (persistedState) => {
         if (!persistedState || typeof persistedState !== 'object') return persistedState;
         const state = persistedState as Record<string, unknown>;
+        const normalizeRemovedTheme = (theme: unknown) =>
+          theme === 'elegant' || theme === 'tech' ? 'default' : theme;
+
         return {
           ...state,
-          wechatTheme: state.wechatTheme === 'elegant' ? 'default' : state.wechatTheme,
-          posterTheme: state.posterTheme === 'elegant' ? 'default' : state.posterTheme,
+          wechatTheme: normalizeRemovedTheme(state.wechatTheme),
+          posterTheme: normalizeRemovedTheme(state.posterTheme),
         };
       },
       partialize: (state) => ({
