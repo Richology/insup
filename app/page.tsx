@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import {
-  ArrowRight,
   FileText,
   Share2,
   Monitor,
@@ -28,7 +27,7 @@ const features = [
   },
   {
     title: "课件图输出",
-    desc: "InSup 1.0 将补齐横版课件图能力，为课程讲义与演示页做准备。",
+    desc: "将内容整理为横版课件图，适合课程讲义、知识演示与课堂投屏场景。",
     icon: Monitor,
   },
   {
@@ -59,7 +58,7 @@ const outputs = [
   },
   {
     title: "PPT 课件页",
-    desc: "作为 1.0 的新增方向，用横版图输出课程演示内容。",
+    desc: "适用于课程演示、讲义配图和知识表达的横版内容输出。",
   },
 ];
 
@@ -158,17 +157,9 @@ export default function LandingPage() {
       </header>
 
       <main>
-        <section className="px-6 pb-20 pt-20 md:pb-28 md:pt-28">
+        <section className="px-6 pb-14 pt-8 md:pb-20 md:pt-12">
           <div className="mx-auto grid max-w-screen-xl gap-14 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
             <div className="space-y-8">
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-[0.24em] text-zinc-500"
-              >
-                InSup 1.0 Base <ArrowRight className="size-3" />
-              </motion.div>
-
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -185,7 +176,7 @@ export default function LandingPage() {
                 transition={{ delay: 0.1 }}
                 className="max-w-xl text-lg leading-8 text-zinc-500"
               >
-                InSup 是面向 Richology 内容体系的 Markdown 工作台，聚焦公众号排版、社交媒体卡片，以及即将加入的课件图输出能力。
+                InSup 是面向 Richology 内容体系的 Markdown 工作台，聚焦公众号排版、社交媒体卡片与 PPT 课件图输出。
               </motion.p>
 
               <motion.div
@@ -229,11 +220,9 @@ export default function LandingPage() {
             <div className="mb-10 max-w-2xl space-y-4">
               <p className="text-sm font-bold uppercase tracking-[0.28em] text-zinc-400">Capabilities</p>
               <h2 className="text-3xl font-black tracking-tight text-zinc-950 md:text-5xl">
-                复用成熟能力，重建属于 InSup 的表达系统。
+                <span className="block">结构化思考、模型化输出</span>
+                <span className="block">通过 InSup 完成学习闭环</span>
               </h2>
-              <p className="text-base leading-7 text-zinc-500 md:text-lg">
-                1.0 以稳定可用为目标，保留排版、卡片和导出等现有核心能力，再在此基础上迭代 Richology 的品牌体验与课件图能力。
-              </p>
             </div>
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {features.map((feature) => {
@@ -289,16 +278,18 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-screen-xl flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div className="space-y-3">
             <Brand />
-            <p className="text-sm text-zinc-500">Markdown 内容排版工作台 · for Richology</p>
+            <p className="text-sm text-zinc-500">
+              Markdown 内容排版工作台 ·{" "}
+              <a
+                href="https://richology.cn"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-zinc-950"
+              >
+                by Richology
+              </a>
+            </p>
             <p className="text-xs uppercase tracking-[0.22em] text-zinc-400">insight.richology.cn</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-5 text-sm font-semibold text-zinc-500">
-            <Link href="/workspace" className="transition-colors hover:text-zinc-950">
-              工作台
-            </Link>
-            <a href="https://richology.cn" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-zinc-950">
-              Richology
-            </a>
           </div>
         </div>
       </footer>

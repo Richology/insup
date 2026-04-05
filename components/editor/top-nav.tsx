@@ -15,14 +15,12 @@ import {
   ChevronDown,
   Palette,
   Image as ImageIconLucide,
-  History,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 
 import { cn } from "@/lib/utils";
-import { CHANGELOG } from "@/lib/changelog";
 import { Button } from "@/components/ui/button";
 import { ExportButton } from "@/components/editor/export-button";
 import { POSTER_THEMES } from "@/lib/poster-themes";
@@ -78,7 +76,6 @@ export const TopNav = ({
 }: TopNavProps) => {
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [showFontPicker, setShowFontPicker] = useState(false);
-  const [showChangelog, setShowChangelog] = useState(false);
   const themePickerRef = useRef<HTMLDivElement>(null);
   const fontPickerRef = useRef<HTMLDivElement>(null);
   const currentWechatTheme =
@@ -123,17 +120,7 @@ export const TopNav = ({
           />
         </Link>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowChangelog(true)}
-          className="ml-4 gap-2 rounded-xl px-3 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-all"
-        >
-          <History className="size-4" />
-          <span className="text-xs font-bold">更新日志</span>
-        </Button>
-
-        <div className="ml-4 flex items-center p-1 border border-zinc-900/10 rounded-2xl bg-zinc-50 shadow-inner">
+        <div className="ml-1 flex items-center p-1 border border-zinc-900/10 rounded-2xl bg-zinc-50 shadow-inner">
           <Button
             variant="ghost"
             size="icon"
@@ -559,103 +546,6 @@ export const TopNav = ({
                 : "复制 HTML"}
         </Button>
       </div>
-
-      {/* 更新日志对话框 */}
-      <AnimatePresence>
-        {showChangelog && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
-            onClick={() => setShowChangelog(false)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden mx-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200">
-                <div className="flex items-center gap-3">
-                  <div className="size-10 rounded-xl bg-indigo-100 flex items-center justify-center">
-                    <History className="size-5 text-indigo-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-zinc-900">更新日志</h2>
-                    <p className="text-xs text-zinc-500">查看新功能和改进</p>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowChangelog(false)}
-                  className="size-8 rounded-lg hover:bg-zinc-100"
-                >
-                  <ChevronDown className="size-4 rotate-180" />
-                </Button>
-              </div>
-
-              {/* Content */}
-              <div className="p-6 overflow-y-auto max-h-[60vh] no-scrollbar scroll-smooth">
-                <div className="relative">
-                  {/* Timeline line */}
-                  <div className="absolute left-[15px] top-2 bottom-2 w-px bg-gradient-to-b from-indigo-500 via-indigo-300 to-transparent" />
-
-                  {/* Timeline items */}
-                  <div className="space-y-6">
-                    {CHANGELOG.map((entry, index) => (
-                      <div key={index} className="relative flex gap-4">
-                        <div className={cn(
-                          "size-8 rounded-full flex items-center justify-center shrink-0 shadow-lg z-10",
-                          index === 0 ? "bg-indigo-500 shadow-indigo-200" : "bg-zinc-200"
-                        )}>
-                          <span className={cn(
-                            "text-xs font-bold",
-                            index === 0 ? "text-white" : "text-zinc-500"
-                          )}>
-                            {index === 0 ? '今' : `v${CHANGELOG.length - index}`}
-                          </span>
-                        </div>
-                        <div className="flex-1 pt-1">
-                          <div className={cn(
-                            "text-xs font-semibold mb-1",
-                            index === 0 ? "text-indigo-600" : "text-zinc-400"
-                          )}>
-                            {entry.date}
-                          </div>
-                          <h4 className="text-sm font-bold text-zinc-900 mb-2">{entry.title}</h4>
-                          <ul className="space-y-1 text-xs text-zinc-600">
-                            {entry.items.map((item, i) => (
-                              <li key={i}>• {item}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className="px-6 py-4 border-t border-zinc-200 bg-zinc-50">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-500">版本 1.0.0</span>
-                  <Button
-                    onClick={() => setShowChangelog(false)}
-                    className="h-8 px-4 text-xs font-bold rounded-xl bg-zinc-900 text-white hover:bg-zinc-800"
-                  >
-                    知道了
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </nav>
   );
 };
