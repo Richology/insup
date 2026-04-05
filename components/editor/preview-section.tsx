@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
@@ -46,7 +46,10 @@ export const PreviewSection = ({
   previewRef,
   posterSlideRef,
 }: PreviewSectionProps) => {
-  if (layoutMode === "edit") return null;
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const scalableContentRef = useRef<HTMLDivElement>(null);
+  const [fitScale, setFitScale] = useState(1);
+  const [scaledSize, setScaledSize] = useState({ width: 0, height: 0 });
 
   const getWechatBackground = (theme: WechatTheme): string => {
     const bgMatch = theme.containerStyle.match(
@@ -57,6 +60,62 @@ export const PreviewSection = ({
 
   const isPosterMode = styleTheme === "poster";
   const isSlideMode = styleTheme === "slide";
+
+  useEffect(() => {
+    const updateScale = () => {
+      const viewport = viewportRef.current;
+      const content = scalableContentRef.current;
+      if (!viewport || !content) return;
+
+      const viewportWidth = Math.max(viewport.clientWidth - 24, 320);
+      const viewportHeight = Math.max(viewport.clientHeight - 24, 320);
+      const naturalWidth = content.offsetWidth;
+      const naturalHeight = content.offsetHeight;
+
+      if (!naturalWidth || !naturalHeight) return;
+
+      const nextScale = Math.min(
+        viewportWidth / naturalWidth,
+        viewportHeight / naturalHeight,
+        1,
+      );
+
+      setFitScale(nextScale);
+      setScaledSize({
+        width: naturalWidth * nextScale,
+        height: naturalHeight * nextScale,
+      });
+    };
+
+    const frame = requestAnimationFrame(updateScale);
+    const viewportObserver =
+      typeof ResizeObserver !== "undefined" && viewportRef.current
+        ? new ResizeObserver(updateScale)
+        : null;
+    const contentObserver =
+      typeof ResizeObserver !== "undefined" && scalableContentRef.current
+        ? new ResizeObserver(updateScale)
+        : null;
+
+    if (viewportObserver && viewportRef.current) {
+      viewportObserver.observe(viewportRef.current);
+    }
+
+    if (contentObserver && scalableContentRef.current) {
+      contentObserver.observe(scalableContentRef.current);
+    }
+
+    window.addEventListener("resize", updateScale);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      viewportObserver?.disconnect();
+      contentObserver?.disconnect();
+      window.removeEventListener("resize", updateScale);
+    };
+  }, [html, layoutMode, posterFont, posterShowFooter, posterShowHeader, previewMode, styleTheme]);
+
+  if (layoutMode === "edit") return null;
 
   const renderPosterPreview = () =>
     previewMode === "pc" ? (
@@ -218,48 +277,58 @@ export const PreviewSection = ({
       </AnimatePresence>
 
       <div className="mx-auto flex h-full w-full max-w-6xl flex-col pt-4">
-        <div className="flex flex-1 items-center justify-center overflow-visible">
+        <div
+          ref={viewportRef}
+          className="flex flex-1 items-center justify-center overflow-hidden"
+        >
           <div
-            className="origin-top transition-transform duration-500 ease-out"
+            className="relative flex items-center justify-center transition-[width,height] duration-300 ease-out"
             style={{
-              transform:
-                previewMode === "pc" || isSlideMode
-                  ? "none"
-                  : "scale(0.9) translateZ(0)",
-              backfaceVisibility: "hidden",
-              WebkitFontSmoothing: "antialiased",
+              width: scaledSize.width ? `${scaledSize.width}px` : "auto",
+              height: scaledSize.height ? `${scaledSize.height}px` : "auto",
             }}
           >
-            {isPosterMode
-              ? renderPosterPreview()
-              : isSlideMode
-                ? renderSlidePreview()
-                : previewMode === "pc"
-                  ? (
-                    <DesktopMockup>
-                      <PreviewContent
-                        containerRef={previewRef}
-                        html={html}
-                        styleTheme={styleTheme}
-                        imgRadius={imgRadius}
-                        activeThemeCss={activeThemeCss}
-                      />
-                    </DesktopMockup>
-                  )
-                  : (
-                    <IPhoneMockup
-                      mode={previewMode}
-                      screenStyle={{ background: getWechatBackground(activeTheme) }}
-                    >
-                      <PreviewContent
-                        containerRef={previewRef}
-                        html={html}
-                        styleTheme={styleTheme}
-                        imgRadius={imgRadius}
-                        activeThemeCss={activeThemeCss}
-                      />
-                    </IPhoneMockup>
-                  )}
+            <div
+              ref={scalableContentRef}
+              className="origin-center transition-transform duration-300 ease-out"
+              style={{
+                transform: `scale(${fitScale}) translateZ(0)`,
+                transformOrigin: "center center",
+                backfaceVisibility: "hidden",
+                WebkitFontSmoothing: "antialiased",
+              }}
+            >
+              {isPosterMode
+                ? renderPosterPreview()
+                : isSlideMode
+                  ? renderSlidePreview()
+                  : previewMode === "pc"
+                    ? (
+                      <DesktopMockup>
+                        <PreviewContent
+                          containerRef={previewRef}
+                          html={html}
+                          styleTheme={styleTheme}
+                          imgRadius={imgRadius}
+                          activeThemeCss={activeThemeCss}
+                        />
+                      </DesktopMockup>
+                    )
+                    : (
+                      <IPhoneMockup
+                        mode={previewMode}
+                        screenStyle={{ background: getWechatBackground(activeTheme) }}
+                      >
+                        <PreviewContent
+                          containerRef={previewRef}
+                          html={html}
+                          styleTheme={styleTheme}
+                          imgRadius={imgRadius}
+                          activeThemeCss={activeThemeCss}
+                        />
+                      </IPhoneMockup>
+                    )}
+            </div>
           </div>
         </div>
       </div>
