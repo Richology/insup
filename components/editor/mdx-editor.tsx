@@ -6,24 +6,11 @@ import { EditorState } from "@codemirror/state";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
-import { syntaxHighlighting, defaultHighlightStyle, bracketMatching } from "@codemirror/language";
+import { syntaxHighlighting, defaultHighlightStyle } from "@codemirror/language";
 import { cn } from "@/lib/utils";
+import type { EditorMethods, SelectionInfo } from "@/types";
 
-export interface EditorMethods {
-  getMarkdown: () => string;
-  setMarkdown: (md: string) => void;
-  insertMarkdown: (text: string) => void;
-  insertAtLineStart: (prefix: string) => void;
-  wrapSelection: (before: string, after: string) => void;
-  getSelectionCoords: () => { top: number; left: number; width: number; height: number; } | null;
-}
-
-export interface SelectionInfo {
-  from: number;
-  to: number;
-  text: string;
-  empty: boolean;
-}
+export type { EditorMethods, SelectionInfo } from "@/types";
 
 interface EditorProps {
   markdown: string;
@@ -99,9 +86,13 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
     const onPushHistoryRef = useRef(onPushHistory);
     const historyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const lastSavedContentRef = useRef<string>(initialMarkdown);
+    const suppressExternalSyncRef = useRef(false);
 
     onChangeRef.current = onChange;
     onPushHistoryRef.current = onPushHistory;
+
+    const clampPos = (pos: number, length: number) =>
+      Math.max(0, Math.min(pos, length));
 
     // 暴露给父组件的方法
     useImperativeHandle(ref, () => ({
@@ -111,40 +102,62 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
         if (!view) return;
         const current = view.state.doc.toString();
         if (current === md) return;
+        const nextLength = md.length;
+        const { anchor, head } = view.state.selection.main;
         view.dispatch({
           changes: { from: 0, to: current.length, insert: md },
+          selection: {
+            anchor: clampPos(anchor, nextLength),
+            head: clampPos(head, nextLength),
+          },
         });
       },
       insertMarkdown: (text: string) => {
         const view = viewRef.current;
         if (!view) return;
-        const { from, to } = view.state.selection.main;
+        const docLength = view.state.doc.length;
+        const { from: rawFrom, to: rawTo } = view.state.selection.main;
+        const from = clampPos(rawFrom, docLength);
+        const to = clampPos(rawTo, docLength);
+        const nextLength = docLength - (to - from) + text.length;
         view.dispatch({
           changes: { from, to, insert: text },
-          selection: { anchor: from + text.length },
+          selection: { anchor: clampPos(from + text.length, nextLength) },
         });
         view.focus();
       },
       insertAtLineStart: (prefix: string) => {
         const view = viewRef.current;
         if (!view) return;
-        const { from } = view.state.selection.main;
+        const docLength = view.state.doc.length;
+        const { from: rawFrom } = view.state.selection.main;
+        const from = clampPos(rawFrom, docLength);
         const line = view.state.doc.lineAt(from);
+        const nextLength = docLength + prefix.length;
         view.dispatch({
           changes: { from: line.from, to: line.from, insert: prefix },
-          selection: { anchor: from + prefix.length },
+          selection: {
+            anchor: clampPos(from + prefix.length, nextLength),
+          },
         });
         view.focus();
       },
-      wrapSelection: (before: string, after: string) => {
+      wrapSelection: (before: string, after = before) => {
         const view = viewRef.current;
         if (!view) return;
-        const { from, to } = view.state.selection.main;
+        const docLength = view.state.doc.length;
+        const { from: rawFrom, to: rawTo } = view.state.selection.main;
+        const from = clampPos(rawFrom, docLength);
+        const to = clampPos(rawTo, docLength);
         const selected = view.state.doc.sliceString(from, to);
         const insert = before + selected + after;
+        const nextLength = docLength - (to - from) + insert.length;
         view.dispatch({
           changes: { from, to, insert },
-          selection: { anchor: from + before.length, head: from + before.length + selected.length },
+          selection: {
+            anchor: clampPos(from + before.length, nextLength),
+            head: clampPos(from + before.length + selected.length, nextLength),
+          },
         });
         view.focus();
       },
@@ -189,7 +202,6 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
           highlightActiveLine(),
           highlightActiveLineGutter(),
           drawSelection(),
-          bracketMatching(),
           history(),
           syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
           markdown({
@@ -202,10 +214,17 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
               const newContent = update.state.doc.toString();
-              onChangeRef.current(newContent);
+              const isExternalSync = suppressExternalSyncRef.current;
+              suppressExternalSyncRef.current = false;
+
+              if (!isExternalSync) {
+                onChangeRef.current(newContent);
+              } else {
+                lastSavedContentRef.current = newContent;
+              }
 
               // 防抖历史记录：用户停止输入 800ms 后记录
-              if (onPushHistoryRef.current) {
+              if (!isExternalSync && onPushHistoryRef.current) {
                 if (historyTimeoutRef.current) {
                   clearTimeout(historyTimeoutRef.current);
                 }
@@ -222,6 +241,8 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
               onSelectionChange?.({
                 from: sel.from,
                 to: sel.to,
+                fromLine: update.state.doc.lineAt(sel.from).number,
+                toLine: update.state.doc.lineAt(sel.to).number,
                 text: update.state.doc.sliceString(sel.from, sel.to),
                 empty: sel.empty
               });
@@ -257,6 +278,27 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
       // 只初始化一次
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    useEffect(() => {
+      const view = viewRef.current;
+      if (!view) return;
+
+      const currentDoc = view.state.doc.toString();
+      if (currentDoc === initialMarkdown) return;
+
+      const docLength = view.state.doc.length;
+      const nextLength = initialMarkdown.length;
+      const { anchor, head } = view.state.selection.main;
+
+      suppressExternalSyncRef.current = true;
+      view.dispatch({
+        changes: { from: 0, to: docLength, insert: initialMarkdown },
+        selection: {
+          anchor: clampPos(anchor, nextLength),
+          head: clampPos(head, nextLength),
+        },
+      });
+    }, [initialMarkdown]);
 
     return (
       <div

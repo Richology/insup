@@ -7,6 +7,7 @@ import type { PagingBlockItem, PagingConfig } from './types';
 import { parseSections, nodesToHtml, hasImage, preloadImages } from './utils';
 import { initProbe, cleanupProbe, measureHeight } from './measurer';
 import { sliceBlock } from './slicer';
+import { readSourceLocationFromNodes } from './source-metadata';
 
 /**
  * 计算分页
@@ -37,8 +38,14 @@ export async function calculateSlides(
 
     for (let sectionId = 0; sectionId < sections.length; sectionId++) {
       const blockQueue = [...sections[sectionId]];
-      const pagesInSection: string[] = [];
+      const pagesInSection: Array<Pick<PagingBlockItem, 'html'> & Partial<PagingBlockItem>> = [];
       let currentPageBlocks: Node[] = [];
+      const pushPage = (nodes: Node[]) => {
+        pagesInSection.push({
+          html: nodesToHtml(nodes),
+          ...(readSourceLocationFromNodes(nodes) ?? {}),
+        });
+      };
 
       while (blockQueue.length > 0) {
         const block = blockQueue.shift()!;
@@ -63,7 +70,7 @@ export async function calculateSlides(
           const sliced = await sliceBlock(block, remainingH, config);
           if (sliced) {
             currentPageBlocks.push(sliced.first);
-            pagesInSection.push(nodesToHtml(currentPageBlocks));
+            pushPage(currentPageBlocks);
             currentPageBlocks = [];
             blockQueue.unshift(...sliced.rest);
             continue;
@@ -72,7 +79,7 @@ export async function calculateSlides(
 
         // 必须换页
         if (currentPageBlocks.length > 0) {
-          pagesInSection.push(nodesToHtml(currentPageBlocks));
+          pushPage(currentPageBlocks);
           currentPageBlocks = [];
         }
 
@@ -88,23 +95,27 @@ export async function calculateSlides(
             blockQueue.unshift(...sliced.rest);
           } else {
             // 无法切分（如图片），单独成页
-            pagesInSection.push(nodesToHtml([block]));
+            pushPage([block]);
           }
         }
       }
 
       if (currentPageBlocks.length > 0) {
-        pagesInSection.push(nodesToHtml(currentPageBlocks));
+        pushPage(currentPageBlocks);
       }
 
       // 生成最终幻灯片
       const totalInGroup = pagesInSection.length || 1;
-      pagesInSection.forEach((pageHtml, pageInGroup) => {
+      pagesInSection.forEach((page, pageInGroup) => {
         finalSlides.push({
-          html: pageHtml,
+          html: page.html,
           sectionId,
           pageInGroup,
           totalInGroup,
+          startLine: page.startLine,
+          endLine: page.endLine,
+          startOffset: page.startOffset,
+          endOffset: page.endOffset,
         });
       });
     }

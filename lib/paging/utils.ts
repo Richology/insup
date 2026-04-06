@@ -8,7 +8,7 @@ import { REGEX } from '@/config/constants';
  * 将 markdown 中的分页标记转换为 HTML hr 标签
  */
 export function normalizePageBreaks(markdown: string): string {
-  return markdown.replace(REGEX.PAGEBREAK, '\n<hr data-pagebreak="true" />\n');
+  return markdown.replace(REGEX.PAGEBREAK, '<hr data-pagebreak="true" />');
 }
 
 /**

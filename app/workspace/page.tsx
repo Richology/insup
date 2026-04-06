@@ -34,7 +34,7 @@ import { MarkdownToolbar } from "@/components/editor/markdown-toolbar";
 import { PreviewSection } from "@/components/editor/preview-section";
 import { ExportPreviewDialog } from "@/components/editor/export-preview-dialog";
 import { FloatingToolbar } from "@/components/editor/floating-toolbar";
-import type { SelectionInfo } from "@/components/editor/mdx-editor";
+import type { SelectionInfo } from "@/types";
 
 export default function InSupEditor() {
   const {
@@ -101,6 +101,8 @@ export default function InSupEditor() {
   >([]);
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
   const [selectionCoords, setSelectionCoords] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+  const [forcePreviewPageIndex, setForcePreviewPageIndex] = useState<number | undefined>(undefined);
+  const [forcePreviewPageNonce, setForcePreviewPageNonce] = useState(0);
 
   const handlePaste = async (e: React.ClipboardEvent | ClipboardEvent) => {
     const clipboardData =
@@ -130,7 +132,6 @@ export default function InSupEditor() {
       const markdownContent = turndown.turndown(htmlData);
       if (editorRef.current) {
         editorRef.current.insertMarkdown(markdownContent);
-        setMarkdown(editorRef.current.getMarkdown());
       }
     }
   };
@@ -144,9 +145,6 @@ export default function InSupEditor() {
       if (content) {
         pushHistory();
         setMarkdown(content);
-        if (editorRef.current) {
-          editorRef.current.setMarkdown(content);
-        }
       }
     };
     reader.readAsText(file);
@@ -186,7 +184,6 @@ export default function InSupEditor() {
       .replace(/([\u4e00-\u9fa5])([a-zA-Z0-9])/g, "$1 $2")
       .replace(/([a-zA-Z0-9])([\u4e00-\u9fa5])/g, "$1 $2");
     setMarkdown(processed);
-    editorRef.current?.setMarkdown(processed);
   };
 
   const handleImageFile = async (file: File) => {
@@ -196,7 +193,6 @@ export default function InSupEditor() {
       const localUrl = await storeImageLocally(file);
       if (editorRef.current) {
         editorRef.current.insertMarkdown(`![${file.name}](${localUrl})`);
-        setMarkdown(editorRef.current.getMarkdown());
       }
     } catch (err) {
       console.error("❌ 图片处理失败:", err);
@@ -215,6 +211,14 @@ export default function InSupEditor() {
     }, 150);
     return () => clearTimeout(timer);
   }, [markdown, styleTheme, showWordCount, setHtml]);
+
+  const handleToggleWordCount = (show: boolean) => {
+    setShowWordCount(show);
+    if (show) {
+      setForcePreviewPageIndex(0);
+      setForcePreviewPageNonce((prev) => prev + 1);
+    }
+  };
 
   const handleCopy = useCallback(async () => {
     try {
@@ -255,6 +259,11 @@ export default function InSupEditor() {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
       const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+      const activeElement =
+        typeof document !== "undefined"
+          ? (document.activeElement as HTMLElement | null)
+          : null;
+      const isEditorFocused = !!activeElement?.closest(".mdx-editor-container");
 
       if (!cmdOrCtrl) return;
 
@@ -293,25 +302,17 @@ export default function InSupEditor() {
 
       // Ctrl/Cmd + Z - 撤销
       if (e.key === "z" && !e.shiftKey) {
+        if (isEditorFocused) return;
         e.preventDefault();
         undo();
-        if (editorRef.current) {
-          const historyState = editorRef.current.getMarkdown();
-          setMarkdown(historyState);
-          editorRef.current.setMarkdown(historyState);
-        }
         return;
       }
 
       // Ctrl/Cmd + Shift + Z 或 Ctrl/Cmd + Y - 重做
       if ((e.key === "z" && e.shiftKey) || e.key === "y") {
+        if (isEditorFocused) return;
         e.preventDefault();
         redo();
-        if (editorRef.current) {
-          const historyState = editorRef.current.getMarkdown();
-          setMarkdown(historyState);
-          editorRef.current.setMarkdown(historyState);
-        }
         return;
       }
 
@@ -462,7 +463,7 @@ export default function InSupEditor() {
         isExportingPoster={isExportingPoster}
         exportProgress={exportProgress}
         showWordCount={showWordCount}
-        setShowWordCount={setShowWordCount}
+        setShowWordCount={handleToggleWordCount}
       />
 
       <main className="relative flex flex-1 gap-6 overflow-hidden px-6 pb-6 pt-4">
@@ -564,6 +565,10 @@ export default function InSupEditor() {
             isUploading={isUploading}
             previewRef={previewRef}
             posterSlideRef={posterSlideRef}
+            activeEditorLine={selection?.fromLine}
+            activeEditorOffset={selection?.from}
+            forcePageIndex={forcePreviewPageIndex}
+            forcePageNonce={forcePreviewPageNonce}
           />
         </AnimatePresence>
       </main>

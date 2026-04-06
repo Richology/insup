@@ -28,6 +28,10 @@ interface DirectiveNode extends Node {
   attributes?: Record<string, unknown>;
 }
 
+type PositionedNode = Node & {
+  data?: DirectiveData;
+};
+
 /**
  * remark plugin: Resolves local images using 'img://' protocol from IndexedDB
  */
@@ -83,6 +87,51 @@ function remarkDirectivePlugin() {
           data.hProperties = directiveNode.attributes || {};
         }
       }
+    });
+  };
+}
+
+function remarkSourceLocationPlugin() {
+  const TRACKED_NODE_TYPES = new Set([
+    "paragraph",
+    "heading",
+    "blockquote",
+    "list",
+    "listItem",
+    "code",
+    "table",
+    "tableRow",
+    "tableCell",
+    "thematicBreak",
+    "leafDirective",
+    "containerDirective",
+  ]);
+
+  return (tree: Node) => {
+    visit(tree, (node) => {
+      const positionedNode = node as PositionedNode;
+      if (!TRACKED_NODE_TYPES.has(positionedNode.type)) return;
+
+      const start = positionedNode.position?.start;
+      const end = positionedNode.position?.end;
+      if (!start || !end) return;
+
+      const data = positionedNode.data || (positionedNode.data = {});
+      data.hProperties = {
+        ...(data.hProperties ?? {}),
+        ...(typeof start.line === "number"
+          ? { "data-md-start-line": start.line }
+          : {}),
+        ...(typeof end.line === "number"
+          ? { "data-md-end-line": end.line }
+          : {}),
+        ...(typeof start.offset === "number"
+          ? { "data-md-start-offset": start.offset }
+          : {}),
+        ...(typeof end.offset === "number"
+          ? { "data-md-end-offset": end.offset }
+          : {}),
+      };
     });
   };
 }
@@ -145,7 +194,7 @@ export async function markdownToHtml(markdown: string): Promise<string> {
   // 专用分页标记：将 <!--pagebreak--> 转成可识别的分页节点
   const normalizedMarkdown = markdown.replace(
     /<!--\s*pagebreak\s*-->/gi,
-    "\n<hr data-pagebreak=\"true\" />\n",
+    "<hr data-pagebreak=\"true\" />",
   );
 
   const result = await unified()
@@ -154,6 +203,7 @@ export async function markdownToHtml(markdown: string): Promise<string> {
     .use(remarkLocalImageResolver)
     .use(remarkDirective)
     .use(remarkDirectivePlugin)
+    .use(remarkSourceLocationPlugin)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
     .use(rehypeInlineHighlight)

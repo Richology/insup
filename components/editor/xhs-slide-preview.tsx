@@ -7,8 +7,17 @@ import React, {
   useEffect,
   useImperativeHandle,
 } from "react";
+import type { SlideItem, SlidePreviewMethods, SourceLocation } from "@/types";
 import { XHSTheme } from "@/lib/xhs-themes";
 import { XHS_FONTS } from "@/lib/fonts";
+import { POSTER_CARD, POSTER_CONTENT_HEIGHT } from "@/config/constants";
+import {
+  readSourceLocationFromElement,
+  readSourceLocationFromNodes,
+  resolveSlideIndexBySourcePosition,
+  splitSourceLocation,
+  writeSourceLocationToElement,
+} from "@/lib/paging/source-metadata";
 
 // 判断颜色是否为深色
 function isColorDark(color: string): boolean {
@@ -123,14 +132,7 @@ function StatusBar({ backgroundColor }: { backgroundColor: string }) {
   );
 }
 
-export interface XHSSlidePreviewMethods {
-  getSlidesCount: () => number;
-  getSlides: () => SlideItem[];
-  goToSlide: (index: number) => void;
-  getCurrentSlide: () => number;
-  goPrev: () => void;
-  goNext: () => void;
-}
+export type XHSSlidePreviewMethods = SlidePreviewMethods;
 
 interface XHSSlidePreviewProps {
   html: string;
@@ -142,24 +144,21 @@ interface XHSSlidePreviewProps {
   showFooter?: boolean;
   hideMockUI?: boolean;
   font?: string;
+  activeLine?: number;
+  activeOffset?: number;
+  forcePageIndex?: number;
+  forcePageNonce?: number;
 }
 
-export const XHS_CARD_W = 334;
-export const XHS_CARD_H = 672;
-export const XHS_STATUS_H = 40; // 状态栏高度
-const HEADER_H = 0;
-export const XHS_FOOTER_H = 48;
-const PADDING_X = 26; // 增加左右内边距，从 20px 提升至 26px
-const PADDING_Y = 32; // 增加上下内边距，从 24px 提升至 32px
-export const SAFE_MARGIN = 20; // 极大幅度降低安全边距，优先保证内容不被拆分（原 102 -> 64 -> 20）
+export const XHS_CARD_W = POSTER_CARD.WIDTH;
+export const XHS_CARD_H = POSTER_CARD.HEIGHT;
+export const XHS_STATUS_H = POSTER_CARD.STATUS_HEIGHT;
+export const XHS_FOOTER_H = POSTER_CARD.FOOTER_HEIGHT;
+const PADDING_X = POSTER_CARD.PADDING_X;
+const PADDING_Y = POSTER_CARD.PADDING_Y;
+export const SAFE_MARGIN = POSTER_CARD.SAFE_MARGIN;
 
-export const XHS_CONTENT_H =
-  XHS_CARD_H -
-  XHS_STATUS_H -
-  HEADER_H -
-  XHS_FOOTER_H -
-  PADDING_Y * 2 -
-  SAFE_MARGIN; // 450px 左右
+export const XHS_CONTENT_H = POSTER_CONTENT_HEIGHT;
 
 // 导出内容区域的通用 CSS，供导出时注入
 export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
@@ -279,11 +278,17 @@ export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
  * ==========================================================
  */
 
-interface SlideItem {
-  html: string;      // 归属章节的 HTML
-  sectionId: number; // 章节索引
-  pageInGroup: number; // 在该章节中的页码
-  totalInGroup: number; // 该章节总页数
+function resolveSlideIndex(
+  slides: SlideItem[],
+  activeOffset?: number,
+  activeLine?: number,
+  fallbackIndex = 0,
+) {
+  return resolveSlideIndexBySourcePosition(
+    slides,
+    { offset: activeOffset, line: activeLine },
+    fallbackIndex,
+  );
 }
 
 /**
@@ -463,18 +468,31 @@ async function calculateSlides(
       if (best === 0) return null;
       const first = element.cloneNode(false) as HTMLElement;
       items.slice(0, best).forEach(i => first.appendChild(i.cloneNode(true)));
+      writeSourceLocationToElement(
+        first,
+        readSourceLocationFromNodes(Array.from(first.children)),
+      );
       const rest = element.cloneNode(false) as HTMLElement;
       items.slice(best).forEach(i => rest.appendChild(i.cloneNode(true)));
+      writeSourceLocationToElement(
+        rest,
+        readSourceLocationFromNodes(Array.from(rest.children)),
+      );
       return { first, rest: [rest] };
     }
 
     // Text splitting
     const sourceText = (element.textContent || "").trim();
     if (sourceText.length < 10) return null;
+    const sourceLocation = readSourceLocationFromElement(element);
 
-    const createNodeFromText = (text: string): Node => {
+    const createNodeFromText = (
+      text: string,
+      location: SourceLocation | null = sourceLocation,
+    ): Node => {
       const clone = element.cloneNode(false) as HTMLElement;
       clone.textContent = text;
+      writeSourceLocationToElement(clone, location);
       return clone;
     };
 
@@ -492,14 +510,27 @@ async function calculateSlides(
     const firstText = sourceText.slice(0, splitAt).trim();
     const restText = sourceText.slice(splitAt).trim();
     if (!firstText || !restText) return null;
-    return { first: createNodeFromText(firstText), rest: [createNodeFromText(restText)] };
+    const splitLocation = splitSourceLocation(
+      sourceLocation,
+      splitAt / sourceText.length,
+    );
+    return {
+      first: createNodeFromText(firstText, splitLocation.first),
+      rest: [createNodeFromText(restText, splitLocation.rest)],
+    };
   };
 
   try {
     for (let sectionId = 0; sectionId < sections.length; sectionId++) {
       const blockQueue = [...sections[sectionId]];
-      const pagesInSection: string[] = [];
+      const pagesInSection: Array<Pick<SlideItem, "html"> & Partial<SlideItem>> = [];
       let currentPageBlocks: Node[] = [];
+      const pushPage = (nodes: Node[]) => {
+        pagesInSection.push({
+          html: nodesToHtml(nodes),
+          ...(readSourceLocationFromNodes(nodes) ?? {}),
+        });
+      };
 
       while (blockQueue.length > 0) {
         const block = blockQueue.shift()!;
@@ -523,7 +554,7 @@ async function calculateSlides(
           const sliced = await sliceBlock(block, remainingH);
           if (sliced) {
             currentPageBlocks.push(sliced.first);
-            pagesInSection.push(nodesToHtml(currentPageBlocks));
+            pushPage(currentPageBlocks);
             currentPageBlocks = [];
             blockQueue.unshift(...sliced.rest);
             continue;
@@ -532,7 +563,7 @@ async function calculateSlides(
 
         // Must transition to new page
         if (currentPageBlocks.length > 0) {
-          pagesInSection.push(nodesToHtml(currentPageBlocks));
+          pushPage(currentPageBlocks);
           currentPageBlocks = [];
         }
 
@@ -548,22 +579,26 @@ async function calculateSlides(
             blockQueue.unshift(...sliced.rest);
           } else {
             // Unsliceable (images etc.)
-            pagesInSection.push(nodesToHtml([block]));
+            pushPage([block]);
           }
         }
       }
 
       if (currentPageBlocks.length > 0) {
-        pagesInSection.push(nodesToHtml(currentPageBlocks));
+        pushPage(currentPageBlocks);
       }
 
       const totalInGroup = pagesInSection.length || 1;
-      pagesInSection.forEach((pageHtml, pageInGroup) => {
+      pagesInSection.forEach((page, pageInGroup) => {
         finalSlides.push({
-          html: pageHtml,
+          html: page.html,
           sectionId,
           pageInGroup,
           totalInGroup,
+          startLine: page.startLine,
+          endLine: page.endLine,
+          startOffset: page.startOffset,
+          endOffset: page.endOffset,
         });
       });
     }
@@ -590,6 +625,10 @@ export const XHSSlidePreview = forwardRef<
       showFooter = true,
       hideMockUI = false,
       font = "system",
+      activeLine,
+      activeOffset,
+      forcePageIndex,
+      forcePageNonce,
     },
     ref,
   ) => {
@@ -598,6 +637,10 @@ export const XHSSlidePreview = forwardRef<
     const [isDragging, setIsDragging] = useState(false);
     const [startX, setStartX] = useState(0);
     const [dragOffset, setDragOffset] = useState(0);
+    const lastAppliedForceNonceRef = useRef<number | undefined>(undefined);
+
+    const clampPageIndex = (index: number, count: number) =>
+      Math.max(0, Math.min(Math.max(count - 1, 0), index));
 
     useEffect(() => {
       if (!html) return;
@@ -610,7 +653,18 @@ export const XHSSlidePreview = forwardRef<
         const result = await splitIntoSlides(html, theme.css, currentFontValue);
         if (isMounted) {
           setSlides(result);
-          setCurrent(0);
+          setCurrent((prev) => {
+            if (
+              typeof forcePageIndex === "number" &&
+              forcePageNonce !== undefined &&
+              forcePageNonce !== lastAppliedForceNonceRef.current
+            ) {
+              lastAppliedForceNonceRef.current = forcePageNonce;
+              return clampPageIndex(forcePageIndex, result.length || 1);
+            }
+
+            return resolveSlideIndex(result, activeOffset, activeLine, prev);
+          });
         }
       };
       run();
@@ -618,7 +672,32 @@ export const XHSSlidePreview = forwardRef<
       return () => {
         isMounted = false;
       };
-    }, [html, theme.css, font]);
+    }, [activeLine, activeOffset, font, forcePageIndex, forcePageNonce, html, theme.css]);
+
+    useEffect(() => {
+      if (slides.length === 0) return;
+
+      if (
+        typeof forcePageIndex === "number" &&
+        forcePageNonce !== undefined &&
+        forcePageNonce !== lastAppliedForceNonceRef.current
+      ) {
+        lastAppliedForceNonceRef.current = forcePageNonce;
+        const frame = requestAnimationFrame(() => {
+          setCurrent(clampPageIndex(forcePageIndex, slides.length));
+        });
+        return () => cancelAnimationFrame(frame);
+      }
+
+      const frame = requestAnimationFrame(() => {
+        setCurrent((prev) => {
+          const next = resolveSlideIndex(slides, activeOffset, activeLine, prev);
+          return next === prev ? prev : next;
+        });
+      });
+
+      return () => cancelAnimationFrame(frame);
+    }, [activeLine, activeOffset, forcePageIndex, forcePageNonce, slides]);
 
     const go = (dir: 1 | -1) => {
       setCurrent((p) =>
@@ -658,9 +737,10 @@ export const XHSSlidePreview = forwardRef<
     };
 
     // 安全回退：如果尚未完成分页计算，至少展示原始 HTML 为一页
-    const displaySlides = slides.length > 0
-      ? slides
-      : [{ html, sectionId: 0, pageInGroup: 0, totalInGroup: 1 }];
+    const displaySlides =
+      slides.length > 0
+        ? slides
+        : [{ html, sectionId: 0, pageInGroup: 0, totalInGroup: 1 }];
 
     const slideCount = displaySlides.length;
 
@@ -694,6 +774,7 @@ export const XHSSlidePreview = forwardRef<
           background: theme.background,
           width: `${XHS_CARD_W}px`,
           height: `${XHS_CARD_H}px`,
+          flexShrink: 0,
           position: "relative",
           overflow: "hidden",
           borderRadius: "0",
@@ -710,7 +791,7 @@ export const XHSSlidePreview = forwardRef<
         onTouchEnd={onTouchEnd}
       >
         {/* Notch */}
-        {!hideMockUI && (
+        {!hideMockUI && XHS_STATUS_H > 0 && (
           <div
             style={{
               position: "absolute",
@@ -735,7 +816,9 @@ export const XHSSlidePreview = forwardRef<
             zIndex: 20,
           }}
         >
-          {!hideMockUI && <StatusBar backgroundColor={theme.background} />}
+          {!hideMockUI && XHS_STATUS_H > 0 && (
+            <StatusBar backgroundColor={theme.background} />
+          )}
         </div>
         <style>{`
           ${getXHSContentCSS(theme.css, XHS_FONTS.find((f) => f.id === font)?.value || XHS_FONTS[0].value)}
@@ -818,7 +901,8 @@ export const XHSSlidePreview = forwardRef<
         <div
           style={{
             position: "absolute",
-            bottom: showFooter ? `${XHS_FOOTER_H + 6}px` : "12px",
+            bottom:
+              showFooter && XHS_FOOTER_H > 0 ? `${XHS_FOOTER_H + 6}px` : "12px",
             left: "50%",
             transform: "translateX(-50%)",
             display: "flex",
@@ -842,7 +926,7 @@ export const XHSSlidePreview = forwardRef<
         </div>
 
         {/* Footer */}
-        {showFooter && (
+        {showFooter && XHS_FOOTER_H > 0 && (
           <div style={{ height: `${XHS_FOOTER_H}px`, flexShrink: 0 }} />
         )}
 

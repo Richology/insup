@@ -222,6 +222,14 @@ export function getInlinedHtml(
     }
   }
 
+  [clone, ...Array.from(clone.querySelectorAll("*"))].forEach((node) => {
+    Array.from(node.attributes).forEach((attribute) => {
+      if (attribute.name.startsWith("data-md-")) {
+        node.removeAttribute(attribute.name);
+      }
+    });
+  });
+
   // 包装一层，确保样式应用
   const wrapper = document.createElement('div');
   wrapper.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif';

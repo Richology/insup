@@ -49,10 +49,27 @@ export function ExportPreviewDialog({
   const [activeSlideIndex, setActiveSlideIndex] = React.useState<number | null>(
     null,
   );
+  const [viewportSize, setViewportSize] = React.useState({
+    width: 0,
+    height: 0,
+  });
 
   React.useEffect(() => {
     if (!isOpen) setActiveSlideIndex(null);
   }, [isOpen]);
+
+  React.useEffect(() => {
+    const updateViewportSize = () => {
+      setViewportSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    updateViewportSize();
+    window.addEventListener("resize", updateViewportSize);
+    return () => window.removeEventListener("resize", updateViewportSize);
+  }, []);
 
   React.useEffect(() => {
     if (activeSlideIndex === null) return;
@@ -82,6 +99,14 @@ export function ExportPreviewDialog({
   const scopedCSS = themeCSS.replace(selectorPattern, ".preview-content");
   const activeSlide =
     activeSlideIndex !== null ? slides[activeSlideIndex] : undefined;
+  const fittedLightboxScale =
+    activeSlide && viewportSize.width > 0 && viewportSize.height > 0
+    ? Math.min(
+        canvas.lightboxScale,
+        Math.max(0.1, (viewportSize.width - 148) / canvas.width),
+        Math.max(0.1, (viewportSize.height - 132) / canvas.height),
+      )
+    : canvas.lightboxScale;
 
   const renderSlideCard = (
     slide: ExportPreviewDialogProps["slides"][number],
@@ -223,7 +248,7 @@ export function ExportPreviewDialog({
           onClick={() => setActiveSlideIndex(null)}
         >
           <div
-            className="relative rounded-2xl bg-white/95 p-3 backdrop-blur-sm"
+            className="relative max-h-[calc(100vh-2rem)] max-w-[calc(100vw-2rem)] overflow-auto rounded-2xl bg-white/95 p-3 backdrop-blur-sm"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -237,7 +262,7 @@ export function ExportPreviewDialog({
             <div className="mb-2 text-center text-xs font-bold text-zinc-600">
               第 {activeSlide.index + 1} 页（←/→ 切页，Esc 关闭）
             </div>
-            {renderSlideCard(activeSlide, canvas.lightboxScale)}
+            {renderSlideCard(activeSlide, fittedLightboxScale)}
             <button
               type="button"
               onClick={() =>
@@ -246,7 +271,7 @@ export function ExportPreviewDialog({
                 )
               }
               disabled={activeSlideIndex === 0}
-              className="absolute left-[-46px] top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-zinc-800 disabled:opacity-30"
+              className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/95 p-2 text-zinc-800 shadow-lg ring-1 ring-black/5 backdrop-blur-sm transition-colors hover:bg-white disabled:opacity-30 md:left-3"
               aria-label="上一页"
             >
               <ChevronLeft className="size-5" />
@@ -259,7 +284,7 @@ export function ExportPreviewDialog({
                 )
               }
               disabled={activeSlideIndex === slides.length - 1}
-              className="absolute right-[-46px] top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-zinc-800 disabled:opacity-30"
+              className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/95 p-2 text-zinc-800 shadow-lg ring-1 ring-black/5 backdrop-blur-sm transition-colors hover:bg-white disabled:opacity-30 md:right-3"
               aria-label="下一页"
             >
               <ChevronRight className="size-5" />

@@ -5,6 +5,12 @@
 import { measureHeight } from './measurer';
 import type { PagingConfig } from './types';
 import { findNaturalBreakIndex } from './utils';
+import {
+  readSourceLocationFromElement,
+  readSourceLocationFromNodes,
+  splitSourceLocation,
+  writeSourceLocationToElement,
+} from './source-metadata';
 
 /** 切块结果 */
 export interface SliceResult {
@@ -84,9 +90,11 @@ async function sliceList(
 
   const first = element.cloneNode(false) as HTMLElement;
   items.slice(0, best).forEach((i) => first.appendChild(i.cloneNode(true)));
+  writeSourceLocationToElement(first, readSourceLocationFromNodes(Array.from(first.children)));
 
   const rest = element.cloneNode(false) as HTMLElement;
   items.slice(best).forEach((i) => rest.appendChild(i.cloneNode(true)));
+  writeSourceLocationToElement(rest, readSourceLocationFromNodes(Array.from(rest.children)));
 
   return { first, rest: [rest] };
 }
@@ -100,10 +108,12 @@ async function sliceTextBlock(
 ): Promise<SliceResult | null> {
   const sourceText = (element.textContent || '').trim();
   if (sourceText.length < 10) return null;
+  const sourceLocation = readSourceLocationFromElement(element);
 
-  const createNodeFromText = (text: string): Node => {
+  const createNodeFromText = (text: string, location = sourceLocation): Node => {
     const clone = element.cloneNode(false) as HTMLElement;
     clone.textContent = text;
+    writeSourceLocationToElement(clone, location);
     return clone;
   };
 
@@ -133,9 +143,13 @@ async function sliceTextBlock(
   const restText = sourceText.slice(splitAt).trim();
 
   if (!firstText || !restText) return null;
+  const { first, rest } = splitSourceLocation(
+    sourceLocation,
+    splitAt / sourceText.length,
+  );
 
   return {
-    first: createNodeFromText(firstText),
-    rest: [createNodeFromText(restText)],
+    first: createNodeFromText(firstText, first),
+    rest: [createNodeFromText(restText, rest)],
   };
 }

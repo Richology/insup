@@ -12,6 +12,7 @@ import type { PosterTheme } from "@/lib/poster-themes";
 import { POSTER_FONTS } from "@/lib/fonts";
 import { PPT_CONTENT_HEIGHT, PPT_SLIDE } from "@/config/constants";
 import { calculateSlides } from "@/lib/paging/engine";
+import { resolveSlideIndexBySourcePosition } from "@/lib/paging/source-metadata";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { buildCanvasContentCSS } from "./canvas-content-css";
 
@@ -66,18 +67,26 @@ interface PPTSlidePreviewProps {
   html: string;
   theme: PosterTheme;
   font?: string;
+  activeLine?: number;
+  activeOffset?: number;
+  forcePageIndex?: number;
+  forcePageNonce?: number;
 }
 
 export const PPTSlidePreview = forwardRef<
   SlidePreviewMethods,
   PPTSlidePreviewProps
->(({ html, theme, font = "system" }, ref) => {
+>(({ html, theme, font = "system", activeLine, activeOffset, forcePageIndex, forcePageNonce }, ref) => {
   const [slides, setSlides] = useState<SlideItem[]>([]);
   const [current, setCurrent] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastAppliedForceNonceRef = useRef<number | undefined>(undefined);
+
+  const clampPageIndex = (index: number, count: number) =>
+    Math.max(0, Math.min(Math.max(count - 1, 0), index));
 
   useEffect(() => {
     if (!html) return;
@@ -101,7 +110,22 @@ export const PPTSlidePreview = forwardRef<
 
       if (mounted) {
         setSlides(result);
-        setCurrent(0);
+        setCurrent((prev) => {
+          if (
+            typeof forcePageIndex === "number" &&
+            forcePageNonce !== undefined &&
+            forcePageNonce !== lastAppliedForceNonceRef.current
+          ) {
+            lastAppliedForceNonceRef.current = forcePageNonce;
+            return clampPageIndex(forcePageIndex, result.length || 1);
+          }
+
+          return resolveSlideIndexBySourcePosition(
+            result,
+            { offset: activeOffset, line: activeLine },
+            prev,
+          );
+        });
       }
     };
 
@@ -109,7 +133,37 @@ export const PPTSlidePreview = forwardRef<
     return () => {
       mounted = false;
     };
-  }, [font, html, theme.css]);
+  }, [activeLine, activeOffset, font, forcePageIndex, forcePageNonce, html, theme.css]);
+
+  useEffect(() => {
+    if (slides.length === 0) return;
+
+    if (
+      typeof forcePageIndex === "number" &&
+      forcePageNonce !== undefined &&
+      forcePageNonce !== lastAppliedForceNonceRef.current
+    ) {
+      lastAppliedForceNonceRef.current = forcePageNonce;
+      const frame = requestAnimationFrame(() => {
+        setCurrent(clampPageIndex(forcePageIndex, slides.length));
+      });
+
+      return () => cancelAnimationFrame(frame);
+    }
+
+    const frame = requestAnimationFrame(() => {
+      setCurrent((prev) => {
+        const next = resolveSlideIndexBySourcePosition(
+          slides,
+          { offset: activeOffset, line: activeLine },
+          prev,
+        );
+        return next === prev ? prev : next;
+      });
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [activeLine, activeOffset, forcePageIndex, forcePageNonce, slides]);
 
   const displaySlides =
     slides.length > 0

@@ -28,6 +28,10 @@ interface PreviewSectionProps {
   isUploading: boolean;
   previewRef: React.RefObject<HTMLDivElement | null>;
   posterSlideRef: React.RefObject<SlidePreviewMethods | null>;
+  activeEditorLine?: number;
+  activeEditorOffset?: number;
+  forcePageIndex?: number;
+  forcePageNonce?: number;
 }
 
 export const PreviewSection = ({
@@ -45,6 +49,10 @@ export const PreviewSection = ({
   isUploading,
   previewRef,
   posterSlideRef,
+  activeEditorLine,
+  activeEditorOffset,
+  forcePageIndex,
+  forcePageNonce,
 }: PreviewSectionProps) => {
   const viewportRef = useRef<HTMLDivElement>(null);
   const scalableContentRef = useRef<HTMLDivElement>(null);
@@ -185,6 +193,10 @@ export const PreviewSection = ({
             html={html}
             theme={activePosterTheme}
             font={posterFont}
+            activeLine={activeEditorLine}
+            activeOffset={activeEditorOffset}
+            forcePageIndex={forcePageIndex}
+            forcePageNonce={forcePageNonce}
             showHeader={posterShowHeader}
             showFooter={posterShowFooter}
             hideMockUI
@@ -194,19 +206,26 @@ export const PreviewSection = ({
     ) : (
       <div className="relative group">
         <IPhoneMockup
+          mode="poster"
           screenStyle={{ background: activePosterTheme.background }}
           hideStatusBar={false}
           showDynamicIsland
         >
-          <PosterSlidePreview
-            ref={posterSlideRef}
-            html={html}
-            theme={activePosterTheme}
-            font={posterFont}
-            showHeader={posterShowHeader}
-            showFooter={posterShowFooter}
-            hideMockUI
-          />
+          <div className="flex min-h-full w-full justify-center pt-4 pb-8">
+            <PosterSlidePreview
+              ref={posterSlideRef}
+              html={html}
+              theme={activePosterTheme}
+              font={posterFont}
+              activeLine={activeEditorLine}
+              activeOffset={activeEditorOffset}
+              forcePageIndex={forcePageIndex}
+              forcePageNonce={forcePageNonce}
+              showHeader={posterShowHeader}
+              showFooter={posterShowFooter}
+              hideMockUI
+            />
+          </div>
         </IPhoneMockup>
         <button
           onClick={() => posterSlideRef.current?.goPrev()}
@@ -232,6 +251,10 @@ export const PreviewSection = ({
             html={html}
             theme={activePosterTheme}
             font={posterFont}
+            activeLine={activeEditorLine}
+            activeOffset={activeEditorOffset}
+            forcePageIndex={forcePageIndex}
+            forcePageNonce={forcePageNonce}
           />
         </div>
       </DesktopMockup>
@@ -245,6 +268,10 @@ export const PreviewSection = ({
           html={html}
           theme={activePosterTheme}
           font={posterFont}
+          activeLine={activeEditorLine}
+          activeOffset={activeEditorOffset}
+          forcePageIndex={forcePageIndex}
+          forcePageNonce={forcePageNonce}
         />
       </div>
     );

@@ -13,8 +13,16 @@ export interface ImageExportOptions {
   returnDataUrl?: boolean;
 }
 
+/** Markdown 源位置信息 */
+export interface SourceLocation {
+  startLine?: number;
+  endLine?: number;
+  startOffset?: number;
+  endOffset?: number;
+}
+
 /** 贴图幻灯片项 */
-export interface SlideItem {
+export interface SlideItem extends SourceLocation {
   html: string;
   sectionId: number;
   pageInGroup: number;

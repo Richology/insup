@@ -26,6 +26,8 @@ export interface SelectionCoords {
 export interface SelectionInfo {
   from: number;
   to: number;
+  fromLine: number;
+  toLine: number;
   text: string;
   empty: boolean;
 }
