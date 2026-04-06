@@ -266,8 +266,8 @@ export default function LandingPage() {
                 transition={{ delay: 0.05 }}
                 className="text-5xl font-black leading-[0.95] tracking-tight text-zinc-950 md:text-7xl"
               >
-                把洞察写成 <br />
-                可发布的内容。
+                从想法到爆款内容 <br />
+                一步完成
               </motion.h1>
 
               <motion.p
@@ -276,7 +276,7 @@ export default function LandingPage() {
                 transition={{ delay: 0.1 }}
                 className="max-w-xl text-lg leading-8 text-zinc-500"
               >
-                InSup 支持自媒体从业者将灵感和洞察在全平台生根发芽
+                InSup 赋能自媒体从业者将灵感和洞察在全平台生根发芽
               </motion.p>
 
               <motion.div
@@ -370,7 +370,15 @@ export default function LandingPage() {
           <div className="space-y-3">
             <Brand />
             <p className="text-sm text-zinc-500">
-              自媒体内容排版工作台 · 了解开发者：安瑟 A11BERICH
+              自媒体内容排版工作台 ·{" "}
+              <a
+                href="https://richology.cn"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-zinc-950"
+              >
+                了解开发者：安瑟 A11BERICH
+              </a>
             </p>
             <p className="text-xs uppercase tracking-[0.22em] text-zinc-400">insight.richology.cn</p>
           </div>
