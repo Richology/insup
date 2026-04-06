@@ -333,26 +333,31 @@ export const PPTSlidePreview = forwardRef<
 
       {slideCount > 1 && (
         <div
-          className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/70 bg-white/88 px-2 py-2 backdrop-blur"
+          className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/70 bg-white/92 px-3 py-2 shadow-[0_14px_36px_rgba(0,0,0,0.14)] backdrop-blur"
           onMouseDown={stopInteractionBubble}
           onTouchStart={stopInteractionBubble}
           onClick={stopInteractionBubble}
         >
           <button
             type="button"
+            title="上一页"
             aria-label="上一页"
             disabled={current === 0}
             onClick={(event) => handleArrowClick(event, -1)}
-            className="flex size-7 items-center justify-center rounded-full text-zinc-700 transition hover:bg-zinc-900/8 disabled:cursor-not-allowed disabled:opacity-35"
+            className="flex size-8 items-center justify-center rounded-full text-zinc-700 transition hover:bg-zinc-900/8 disabled:cursor-not-allowed disabled:opacity-35"
           >
             <ChevronLeft className="size-4" />
           </button>
 
           <div className="flex items-center gap-2 px-1">
+            <span className="min-w-[3rem] text-center text-[10px] font-semibold text-zinc-500">
+              {current + 1}/{slideCount}
+            </span>
             {Array.from({ length: slideCount }).map((_, index) => (
               <button
                 key={index}
                 type="button"
+                title={`第 ${index + 1} 页`}
                 aria-label={`切换到第 ${index + 1} 页`}
                 aria-pressed={index === current}
                 onClick={(event) => handleDotClick(event, index)}
@@ -371,10 +376,11 @@ export const PPTSlidePreview = forwardRef<
 
           <button
             type="button"
+            title="下一页"
             aria-label="下一页"
             disabled={current === slideCount - 1}
             onClick={(event) => handleArrowClick(event, 1)}
-            className="flex size-7 items-center justify-center rounded-full text-zinc-700 transition hover:bg-zinc-900/8 disabled:cursor-not-allowed disabled:opacity-35"
+            className="flex size-8 items-center justify-center rounded-full text-zinc-700 transition hover:bg-zinc-900/8 disabled:cursor-not-allowed disabled:opacity-35"
           >
             <ChevronRight className="size-4" />
           </button>

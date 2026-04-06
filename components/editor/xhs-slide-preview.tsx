@@ -11,6 +11,7 @@ import type { SlideItem, SlidePreviewMethods, SourceLocation } from "@/types";
 import { XHSTheme } from "@/lib/xhs-themes";
 import { XHS_FONTS } from "@/lib/fonts";
 import { POSTER_CARD, POSTER_CONTENT_HEIGHT } from "@/config/constants";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   readSourceLocationFromElement,
   readSourceLocationFromNodes,
@@ -148,6 +149,8 @@ interface XHSSlidePreviewProps {
   activeOffset?: number;
   forcePageIndex?: number;
   forcePageNonce?: number;
+  showNavigationControls?: boolean;
+  onSlideStateChange?: (state: { current: number; slideCount: number }) => void;
 }
 
 export const XHS_CARD_W = POSTER_CARD.WIDTH;
@@ -629,6 +632,8 @@ export const XHSSlidePreview = forwardRef<
       activeOffset,
       forcePageIndex,
       forcePageNonce,
+      showNavigationControls = true,
+      onSlideStateChange,
     },
     ref,
   ) => {
@@ -705,6 +710,34 @@ export const XHSSlidePreview = forwardRef<
       );
     };
 
+    const goTo = (index: number) => {
+      setCurrent(Math.max(0, Math.min(slideCount - 1, index)));
+    };
+
+    const stopInteractionBubble = (event: React.SyntheticEvent) => {
+      event.stopPropagation();
+    };
+
+    const handleArrowClick = (
+      event: React.MouseEvent<HTMLButtonElement>,
+      dir: 1 | -1,
+    ) => {
+      event.stopPropagation();
+      setIsDragging(false);
+      setDragOffset(0);
+      go(dir);
+    };
+
+    const handleDotClick = (
+      event: React.MouseEvent<HTMLButtonElement>,
+      index: number,
+    ) => {
+      event.stopPropagation();
+      setIsDragging(false);
+      setDragOffset(0);
+      goTo(index);
+    };
+
     const onMouseDown = (e: React.MouseEvent) => {
       setIsDragging(true);
       setStartX(e.clientX);
@@ -743,6 +776,10 @@ export const XHSSlidePreview = forwardRef<
         : [{ html, sectionId: 0, pageInGroup: 0, totalInGroup: 1 }];
 
     const slideCount = displaySlides.length;
+
+    useEffect(() => {
+      onSlideStateChange?.({ current, slideCount });
+    }, [current, onSlideStateChange, slideCount]);
 
     // 计算位移，并在边缘滑动时增加阻尼感
     const translateX = (() => {
@@ -822,23 +859,6 @@ export const XHSSlidePreview = forwardRef<
         </div>
         <style>{`
           ${getXHSContentCSS(theme.css, XHS_FONTS.find((f) => f.id === font)?.value || XHS_FONTS[0].value)}
-          .xhs-slide-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 28px; height: 28px;
-            border-radius: 50%;
-            background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(4px);
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; z-index: 20;
-            opacity: 0; transition: all 0.2s;
-          }
-          .xhs-slide-container:hover .xhs-slide-nav { opacity: 1; }
-          .xhs-slide-nav:hover { background: rgba(0,0,0,0.5); }
-          .xhs-slide-nav.left { left: -20px; }
-          .xhs-slide-nav.right { right: -20px; }
-          .xhs-slide-nav svg { width: 14px; height: 14px; color: #fff; }
         `}</style>
 
         {/* Slides viewport */}
@@ -897,33 +917,69 @@ export const XHSSlidePreview = forwardRef<
           </div>
         </div>
 
-        {/* Dots */}
-        <div
-          style={{
-            position: "absolute",
-            bottom:
-              showFooter && XHS_FOOTER_H > 0 ? `${XHS_FOOTER_H + 6}px` : "12px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            display: "flex",
-            gap: 5,
-            zIndex: 10,
-          }}
-        >
-          {Array.from({ length: slideCount }).map((_, i) => (
-            <div
-              key={i}
-              style={{
-                width: i === current ? 16 : 6,
-                height: 6,
-                borderRadius: 3,
-                background:
-                  i === current ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.2)",
-                transition: "all 0.3s",
-              }}
-            />
-          ))}
-        </div>
+        {showNavigationControls && slideCount > 1 && (
+          <div
+            className="absolute left-1/2 z-20 -translate-x-1/2"
+            style={{
+              bottom:
+                showFooter && XHS_FOOTER_H > 0
+                  ? `${XHS_FOOTER_H + 10}px`
+                  : "10px",
+            }}
+            onMouseDown={stopInteractionBubble}
+            onTouchStart={stopInteractionBubble}
+            onClick={stopInteractionBubble}
+          >
+            <div className="flex items-center gap-2 rounded-full border border-white/70 bg-white/90 px-2 py-2 shadow-[0_10px_30px_rgba(0,0,0,0.14)] backdrop-blur">
+              <button
+                type="button"
+                title="上一页"
+                aria-label="上一页"
+                disabled={current === 0}
+                onClick={(event) => handleArrowClick(event, -1)}
+                className="flex size-8 items-center justify-center rounded-full text-zinc-700 transition hover:bg-zinc-900/8 disabled:cursor-not-allowed disabled:opacity-35"
+              >
+                <ChevronLeft className="size-4" />
+              </button>
+
+              <div className="flex items-center gap-2 px-1">
+                <span className="min-w-[2.5rem] text-center text-[10px] font-semibold text-zinc-500">
+                  {current + 1}/{slideCount}
+                </span>
+                {Array.from({ length: slideCount }).map((_, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    title={`第 ${index + 1} 页`}
+                    aria-label={`切换到第 ${index + 1} 页`}
+                    aria-pressed={index === current}
+                    onClick={(event) => handleDotClick(event, index)}
+                    className="rounded-full transition-all duration-300"
+                    style={{
+                      width: index === current ? 18 : 6,
+                      height: 6,
+                      background:
+                        index === current
+                          ? "rgba(24,24,27,0.82)"
+                          : "rgba(24,24,27,0.2)",
+                    }}
+                  />
+                ))}
+              </div>
+
+              <button
+                type="button"
+                title="下一页"
+                aria-label="下一页"
+                disabled={current === slideCount - 1}
+                onClick={(event) => handleArrowClick(event, 1)}
+                className="flex size-8 items-center justify-center rounded-full text-zinc-700 transition hover:bg-zinc-900/8 disabled:cursor-not-allowed disabled:opacity-35"
+              >
+                <ChevronRight className="size-4" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         {showFooter && XHS_FOOTER_H > 0 && (

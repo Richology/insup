@@ -123,21 +123,25 @@ export const EditorSection = ({
         {floatingToolbar}
       </div>
 
-      <div className="flex items-center justify-between px-8 py-4 bg-zinc-50 border-t border-zinc-900/5 font-mono text-[10px] uppercase tracking-widest text-zinc-400">
-        <div className="flex items-center gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-900/5 bg-zinc-50 px-8 py-3 text-xs text-zinc-500">
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-zinc-400">
+            文档统计
+          </span>
           {isUploading && (
-            <div className="flex items-center gap-2 text-zinc-900 animate-pulse">
+            <div className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-zinc-900 shadow-sm ring-1 ring-zinc-200 animate-pulse">
               <Loader2 className="size-3 animate-spin" />
               <span>Processing Media</span>
             </div>
           )}
-          <div className="flex items-center gap-2">
-            <span className="text-zinc-900 font-black">字数统计:</span>
-            <span>{wordCount}</span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="rounded-full bg-white px-3 py-1.5 font-medium text-zinc-700 shadow-sm ring-1 ring-zinc-200/80">
+            {wordCount} 字
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-zinc-900 font-black">预计阅读:</span>
-            <span>{readTime} 分钟</span>
+          <div className="rounded-full bg-white px-3 py-1.5 font-medium text-zinc-700 shadow-sm ring-1 ring-zinc-200/80">
+            约 {readTime} 分钟阅读
           </div>
         </div>
       </div>

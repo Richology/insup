@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { IPhoneMockup } from "./mockups/iphone-mockup";
 import { DesktopMockup } from "./mockups/desktop-mockup";
 import { XHSSlidePreview as PosterSlidePreview } from "./xhs-slide-preview";
@@ -58,6 +58,21 @@ export const PreviewSection = ({
   const scalableContentRef = useRef<HTMLDivElement>(null);
   const [fitScale, setFitScale] = useState(1);
   const [scaledSize, setScaledSize] = useState({ width: 0, height: 0 });
+  const [posterMobileSlideState, setPosterMobileSlideState] = useState({
+    current: 0,
+    slideCount: 1,
+  });
+
+  const handlePosterMobileSlideStateChange = useCallback(
+    (state: { current: number; slideCount: number }) => {
+      setPosterMobileSlideState((prev) =>
+        prev.current === state.current && prev.slideCount === state.slideCount
+          ? prev
+          : state,
+      );
+    },
+    [],
+  );
 
   const getWechatBackground = (theme: WechatTheme): string => {
     const bgMatch = theme.containerStyle.match(
@@ -204,41 +219,92 @@ export const PreviewSection = ({
         </div>
       </div>
     ) : (
-      <div className="relative group">
+      <div className="relative">
         <IPhoneMockup
           mode="poster"
           screenStyle={{ background: activePosterTheme.background }}
           hideStatusBar={false}
           showDynamicIsland
         >
-          <div className="flex min-h-full w-full justify-center pt-4 pb-8">
-            <PosterSlidePreview
-              ref={posterSlideRef}
-              html={html}
-              theme={activePosterTheme}
-              font={posterFont}
-              activeLine={activeEditorLine}
-              activeOffset={activeEditorOffset}
-              forcePageIndex={forcePageIndex}
-              forcePageNonce={forcePageNonce}
-              showHeader={posterShowHeader}
-              showFooter={posterShowFooter}
-              hideMockUI
-            />
+          <div className="relative min-h-full w-full">
+            <div className="flex w-full justify-center pt-4">
+              <PosterSlidePreview
+                ref={posterSlideRef}
+                html={html}
+                theme={activePosterTheme}
+                font={posterFont}
+                activeLine={activeEditorLine}
+                activeOffset={activeEditorOffset}
+                forcePageIndex={forcePageIndex}
+                forcePageNonce={forcePageNonce}
+                showHeader={posterShowHeader}
+                showFooter={posterShowFooter}
+                hideMockUI
+                showNavigationControls={false}
+                onSlideStateChange={handlePosterMobileSlideStateChange}
+              />
+            </div>
+
+            {posterMobileSlideState.slideCount > 1 && (
+              <div className="pointer-events-none absolute inset-x-0 bottom-[52px] z-20 flex justify-center">
+                <div className="pointer-events-auto flex items-center gap-2 rounded-full border border-white/70 bg-white/92 px-3 py-2 shadow-[0_14px_36px_rgba(0,0,0,0.14)] backdrop-blur">
+                  <button
+                    type="button"
+                    title="上一页"
+                    aria-label="上一页"
+                    disabled={posterMobileSlideState.current === 0}
+                    onClick={() => posterSlideRef.current?.goPrev()}
+                    className="flex size-8 items-center justify-center rounded-full text-zinc-700 transition hover:bg-zinc-900/8 disabled:cursor-not-allowed disabled:opacity-35"
+                  >
+                    <ChevronLeft className="size-4" />
+                  </button>
+
+                  <div className="flex items-center gap-2 px-1">
+                    <span className="min-w-[2.5rem] text-center text-[10px] font-semibold text-zinc-500">
+                      {posterMobileSlideState.current + 1}/
+                      {posterMobileSlideState.slideCount}
+                    </span>
+                    {Array.from({
+                      length: posterMobileSlideState.slideCount,
+                    }).map((_, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        title={`第 ${index + 1} 页`}
+                        aria-label={`切换到第 ${index + 1} 页`}
+                        aria-pressed={index === posterMobileSlideState.current}
+                        onClick={() => posterSlideRef.current?.goToSlide(index)}
+                        className="rounded-full transition-all duration-300"
+                        style={{
+                          width: index === posterMobileSlideState.current ? 18 : 6,
+                          height: 6,
+                          background:
+                            index === posterMobileSlideState.current
+                              ? "rgba(24,24,27,0.82)"
+                              : "rgba(24,24,27,0.2)",
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    title="下一页"
+                    aria-label="下一页"
+                    disabled={
+                      posterMobileSlideState.current ===
+                      posterMobileSlideState.slideCount - 1
+                    }
+                    onClick={() => posterSlideRef.current?.goNext()}
+                    className="flex size-8 items-center justify-center rounded-full text-zinc-700 transition hover:bg-zinc-900/8 disabled:cursor-not-allowed disabled:opacity-35"
+                  >
+                    <ChevronRight className="size-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </IPhoneMockup>
-        <button
-          onClick={() => posterSlideRef.current?.goPrev()}
-          className="absolute left-[-60px] top-1/2 -translate-y-1/2 p-3 text-zinc-400 opacity-0 transition-all hover:scale-110 hover:text-zinc-800 active:scale-95 group-hover:opacity-100"
-        >
-          <ChevronLeft className="size-8 stroke-[2.5px]" />
-        </button>
-        <button
-          onClick={() => posterSlideRef.current?.goNext()}
-          className="absolute right-[-60px] top-1/2 -translate-y-1/2 p-3 text-zinc-400 opacity-0 transition-all hover:scale-110 hover:text-zinc-800 active:scale-95 group-hover:opacity-100"
-        >
-          <ChevronRight className="size-8 stroke-[2.5px]" />
-        </button>
       </div>
     );
 

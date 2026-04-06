@@ -610,7 +610,6 @@ export default function InSupEditor() {
           separatorLabel={styleTheme === "poster" ? "插入装饰分隔线" : "插入分隔线"}
           pageBreakLabel="插入强制分页符（<!--pagebreak-->）"
           targetSelector=".mdx-editor-container"
-          onDeleteLine={() => editorRef.current?.insertMarkdown("\n")}
         />
       </AnimatePresence>
 

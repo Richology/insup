@@ -85,6 +85,9 @@ export const TopNav = ({
   const currentTheme =
     styleTheme === "wechat" ? currentWechatTheme : currentPosterTheme;
   const currentFont = POSTER_FONTS.find((f) => f.id === posterFont) || POSTER_FONTS[0];
+  const readInfoToggleLabel = showWordCount
+    ? "移除内容头部的阅读信息"
+    : "在内容头部插入阅读信息";
 
   // 点击外部关闭主题选择器
   useEffect(() => {
@@ -466,7 +469,9 @@ export const TopNav = ({
           variant="ghost"
           size="icon"
           onClick={() => setShowWordCount(!showWordCount)}
-          title={showWordCount ? "隐藏字数信息" : "显示字数信息"}
+          title={readInfoToggleLabel}
+          aria-label={readInfoToggleLabel}
+          aria-pressed={showWordCount}
           className={cn(
             "size-7 rounded-md transition-all",
             showWordCount

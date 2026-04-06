@@ -12,7 +12,6 @@ import {
   Image,
   Type,
   SeparatorHorizontal,
-  Trash2
 } from "lucide-react";
 
 interface ContextMenuProps {
@@ -26,7 +25,6 @@ interface ContextMenuProps {
   onInsertHeading: () => void;
   onInsertSeparator: () => void;
   onInsertPageBreak: () => void;
-  onDeleteLine: () => void;
   separatorLabel?: string;
   pageBreakLabel?: string;
   targetSelector?: string;
@@ -43,7 +41,6 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   onInsertHeading,
   onInsertSeparator,
   onInsertPageBreak,
-  onDeleteLine,
   separatorLabel = "插入分隔线",
   pageBreakLabel = "插入分页符",
   targetSelector = ".mdx-editor-container",
@@ -108,8 +105,6 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     { label: "插入标题", icon: Type, action: onInsertHeading },
     { label: separatorLabel, icon: SeparatorHorizontal, action: onInsertSeparator },
     { label: pageBreakLabel, icon: SeparatorHorizontal, action: onInsertPageBreak },
-    { separator: true },
-    { label: "删除行", icon: Trash2, action: onDeleteLine, danger: true }
   ];
 
   return (
@@ -140,8 +135,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
             }}
             className={cn(
               "w-full flex items-center gap-3 px-3 py-2 text-sm text-left transition-colors",
-              "hover:bg-zinc-100",
-              item.danger && "text-red-600 hover:bg-red-50"
+              "hover:bg-zinc-100"
             )}
           >
             <Icon className="w-4 h-4" />
