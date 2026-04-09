@@ -288,6 +288,22 @@ export default function InSupEditor() {
           ? (document.activeElement as HTMLElement | null)
           : null;
       const isEditorFocused = !!activeElement?.closest(".mdx-editor-container");
+      const isSlidePreviewVisible =
+        styleTheme === "slide" && layoutMode !== "edit" && !showExportPreview;
+
+      if (isSlidePreviewVisible && !isEditorFocused) {
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          posterSlideRef.current?.goPrev();
+          return;
+        }
+
+        if (e.key === "ArrowRight") {
+          e.preventDefault();
+          posterSlideRef.current?.goNext();
+          return;
+        }
+      }
 
       if (!cmdOrCtrl) return;
 
@@ -362,6 +378,7 @@ export default function InSupEditor() {
     setLayoutMode,
     setMarkdown,
     setPreviewMode,
+    showExportPreview,
     styleTheme,
     undo,
   ]);
