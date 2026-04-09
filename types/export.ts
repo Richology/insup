@@ -27,6 +27,7 @@ export interface SlideItem extends SourceLocation {
   sectionId: number;
   pageInGroup: number;
   totalInGroup: number;
+  contentHeight?: number;
 }
 
 /** 贴图幻灯片预览方法 */

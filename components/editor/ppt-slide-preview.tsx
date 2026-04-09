@@ -248,6 +248,19 @@ export const PPTSlidePreview = forwardRef<
     return base + dragOffset;
   })();
 
+  const getSlideTopInset = (slide: SlideItem) => {
+    if (typeof slide.contentHeight !== "number") return 0;
+    if (slide.contentHeight >= PPT_CONTENT_HEIGHT * 0.72) return 0;
+
+    return Math.max(
+      0,
+      Math.min(
+        144,
+        Math.round((PPT_CONTENT_HEIGHT - slide.contentHeight) / 2),
+      ),
+    );
+  };
+
   useImperativeHandle(ref, () => ({
     getSlidesCount: () => slideCount,
     getSlides: () => displaySlides,
@@ -319,10 +332,13 @@ export const PPTSlidePreview = forwardRef<
                   width: "100%",
                   height: `${PPT_CONTENT_HEIGHT}px`,
                   overflow: "hidden",
+                  boxSizing: "border-box",
+                  paddingTop: `${getSlideTopInset(slide)}px`,
                 }}
               >
                 <div
                   id="insup-content"
+                  style={{ width: "100%" }}
                   dangerouslySetInnerHTML={{ __html: slide.html }}
                 />
               </div>

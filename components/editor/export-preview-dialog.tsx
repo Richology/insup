@@ -26,6 +26,7 @@ interface ExportPreviewDialogProps {
     index: number;
     totalInGroup: number;
     pageInGroup: number;
+    contentHeight?: number;
   }[];
   themeBackground: string;
   themeCSS: string;
@@ -114,6 +115,17 @@ export function ExportPreviewDialog({
   ) => {
     const width = Math.round(canvas.width * scale);
     const height = Math.round(canvas.height * scale);
+    const topInset =
+      typeof slide.contentHeight === "number" &&
+      slide.contentHeight < canvas.contentHeight * 0.72
+        ? Math.max(
+            0,
+            Math.min(
+              144,
+              Math.round((canvas.contentHeight - slide.contentHeight) / 2),
+            ),
+          )
+        : 0;
 
     return (
       <div
@@ -145,7 +157,12 @@ export function ExportPreviewDialog({
           >
             <div
               className="preview-content w-full"
-              style={{ height: `${canvas.contentHeight}px`, overflow: "hidden" }}
+              style={{
+                height: `${canvas.contentHeight}px`,
+                overflow: "hidden",
+                boxSizing: "border-box",
+                paddingTop: `${topInset}px`,
+              }}
             >
               <div
                 id="insup-content"

@@ -17,6 +17,7 @@ export interface PagingBlockItem extends SourceLocation {
   sectionId: number;
   pageInGroup: number;
   totalInGroup: number;
+  contentHeight?: number;
 }
 
 /** DOM 节点 */

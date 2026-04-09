@@ -9,6 +9,7 @@ import {
   SeparatorHorizontal,
   Info, AlertCircle, AlertTriangle,
   Code2, Image as ImageIcon,
+  CornerDownLeft,
   CheckSquare, Keyboard, FolderUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ interface MarkdownToolbarProps {
   onInsertTable: (rows: number, cols: number) => void;
   onInsertImage?: () => void;
   onImportMarkdown?: () => void;
+  onInsertSpacer?: () => void;
   
   // High-level theme-aware handlers
   onHeading: (level: 1 | 2) => void;
@@ -42,6 +44,7 @@ export const MarkdownToolbar = ({
   onInsertTable,
   onInsertImage,
   onImportMarkdown,
+  onInsertSpacer,
   onHeading,
   onSeparator,
   onInsertPageBreak,
@@ -75,6 +78,7 @@ export const MarkdownToolbar = ({
     btn(<ListOrdered className="size-4" />,   "有序列表",    () => onInsertAtLineStart('1. ')),
     btn(<CheckSquare className="size-4" />,   "任务清单",    () => onInsertAtLineStart('- [ ] '), "hover:bg-green-50 text-green-600"),
     btn(<Minus className="size-4" />,         "装饰分隔线",      () => onSeparator()),
+    btn(<CornerDownLeft className="size-4" />, "留白 / 换行", () => onInsertSpacer?.(), "hover:bg-sky-50 text-sky-600"),
     btn(<SeparatorHorizontal className="size-4" />, "强制分页符（<!--pagebreak-->）", () => onInsertPageBreak?.(), "hover:bg-amber-50 text-amber-600"),
     btn(<Code2 className="size-4" />,         "代码块",      () => onInsertText('\n```js\n\n```\n'), "hover:bg-violet-50 text-violet-600"),
   ];

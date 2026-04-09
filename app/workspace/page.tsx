@@ -97,7 +97,13 @@ export default function InSupEditor() {
   const [activePopup, setActivePopup] = useState<string | null>(null);
   const [showExportPreview, setShowExportPreview] = useState(false);
   const [previewSlides, setPreviewSlides] = useState<
-    { html: string; index: number; totalInGroup: number; pageInGroup: number }[]
+    {
+      html: string;
+      index: number;
+      totalInGroup: number;
+      pageInGroup: number;
+      contentHeight?: number;
+    }[]
   >([]);
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
   const [selectionCoords, setSelectionCoords] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
@@ -161,6 +167,24 @@ export default function InSupEditor() {
 
   const handleInsertPageBreak = () => {
     handleInsertText("\n\n<!--pagebreak-->\n\n");
+  };
+
+  const handleInsertSpacer = () => {
+    if (styleTheme === "slide") {
+      handleInsertText(
+        '\n<div data-insup-spacer="slide" style="height: 24px;"></div>\n',
+      );
+      return;
+    }
+
+    if (styleTheme === "poster") {
+      handleInsertText(
+        '\n<div data-insup-spacer="poster" style="height: 16px;"></div>\n',
+      );
+      return;
+    }
+
+    handleInsertText("<br />\n");
   };
 
   const handleInsertAtLineStart = (prefix: string) => {
@@ -365,7 +389,8 @@ export default function InSupEditor() {
       html: s.html,
       index: i,
       totalInGroup: s.totalInGroup,
-      pageInGroup: s.pageInGroup
+      pageInGroup: s.pageInGroup,
+      contentHeight: s.contentHeight,
     }));
 
     setPreviewSlides(slidesForPreview);
@@ -520,6 +545,7 @@ export default function InSupEditor() {
                     else handleInsertText("\n\n---\n\n");
                   }}
                   onInsertPageBreak={handleInsertPageBreak}
+                  onInsertSpacer={handleInsertSpacer}
                   onQuote={() => {
                     if (styleTheme === "poster") handleInsertText("\n✅ ");
                     else handleInsertAtLineStart("> ");

@@ -40,9 +40,19 @@ export async function calculateSlides(
       const blockQueue = [...sections[sectionId]];
       const pagesInSection: Array<Pick<PagingBlockItem, 'html'> & Partial<PagingBlockItem>> = [];
       let currentPageBlocks: Node[] = [];
-      const pushPage = (nodes: Node[]) => {
+      const pushPage = async (nodes: Node[], pageHeight?: number) => {
+        const contentHeight =
+          typeof pageHeight === "number"
+            ? pageHeight
+            : nodes.length > 0
+              ? await measureHeight(
+                  nodes,
+                  nodes.some((node) => hasImage(node)),
+                )
+              : 0;
         pagesInSection.push({
           html: nodesToHtml(nodes),
+          contentHeight,
           ...(readSourceLocationFromNodes(nodes) ?? {}),
         });
       };
@@ -70,7 +80,7 @@ export async function calculateSlides(
           const sliced = await sliceBlock(block, remainingH, config);
           if (sliced) {
             currentPageBlocks.push(sliced.first);
-            pushPage(currentPageBlocks);
+            await pushPage(currentPageBlocks);
             currentPageBlocks = [];
             blockQueue.unshift(...sliced.rest);
             continue;
@@ -79,7 +89,7 @@ export async function calculateSlides(
 
         // 必须换页
         if (currentPageBlocks.length > 0) {
-          pushPage(currentPageBlocks);
+          await pushPage(currentPageBlocks, beforeH);
           currentPageBlocks = [];
         }
 
@@ -95,13 +105,13 @@ export async function calculateSlides(
             blockQueue.unshift(...sliced.rest);
           } else {
             // 无法切分（如图片），单独成页
-            pushPage([block]);
+            await pushPage([block], soloH);
           }
         }
       }
 
       if (currentPageBlocks.length > 0) {
-        pushPage(currentPageBlocks);
+        await pushPage(currentPageBlocks);
       }
 
       // 生成最终幻灯片
@@ -112,6 +122,7 @@ export async function calculateSlides(
           sectionId,
           pageInGroup,
           totalInGroup,
+          contentHeight: page.contentHeight,
           startLine: page.startLine,
           endLine: page.endLine,
           startOffset: page.startOffset,
