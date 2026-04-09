@@ -13,6 +13,9 @@ const THEME_SWATCHES: Record<string, { bg: string; accent: string }> = {
   green:     { bg: '#f0faf4', accent: '#07c160' },
   minecraft: { bg: '#0b1220', accent: '#7ef9ff' },
   claude:    { bg: '#171412', accent: '#db9a5e' },
+  blueprint: { bg: '#f4f8fc', accent: '#2f6bff' },
+  brutalist: { bg: '#f6f1e8', accent: '#111111' },
+  'aurora-glass': { bg: '#f7fbff', accent: '#7b61ff' },
   rose:      { bg: '#fff1f2', accent: '#be123c' },
 };
 
@@ -21,6 +24,9 @@ const getThemeSignature = (themeId: string) => {
   if (themeId === 'magazine') return 'M';
   if (themeId === 'minecraft') return 'X';
   if (themeId === 'claude') return 'C';
+  if (themeId === 'blueprint') return 'P';
+  if (themeId === 'brutalist') return 'U';
+  if (themeId === 'aurora-glass') return 'A';
   return 'D';
 };
 

@@ -14,6 +14,9 @@ const getThemeSignature = (themeId: string) => {
   if (themeId === 'magazine') return 'M';
   if (themeId === 'minecraft') return 'X';
   if (themeId === 'claude') return 'C';
+  if (themeId === 'blueprint') return 'P';
+  if (themeId === 'brutalist') return 'U';
+  if (themeId === 'aurora-glass') return 'A';
   return 'D';
 };
 

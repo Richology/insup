@@ -40,6 +40,12 @@ export function buildCanvasContentCSS({
       word-wrap: break-word;
       overflow-wrap: break-word;
       word-break: break-word;
+      background: transparent !important;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      outline: none !important;
+      backdrop-filter: none !important;
       padding: 0 !important;
       margin: 0 !important;
       min-height: auto !important;
@@ -52,6 +58,11 @@ export function buildCanvasContentCSS({
       padding: 0 !important;
       margin: 0 !important;
       background: transparent !important;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      outline: none !important;
+      backdrop-filter: none !important;
     }
     ${contentSelector} #insup-content > * {
       margin-top: 0 !important;

@@ -939,6 +939,650 @@ export const WECHAT_THEMES: WechatTheme[] = [
     preview: '#171412',
   },
   {
+    id: 'blueprint',
+    name: '蓝图',
+    description: '研究笔记、课程结构、知识框架感',
+    containerStyle: 'max-width:677px;margin:0 auto;background:#f4f8fc;color:#17324d;padding:36px 28px;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;',
+    css: BASE_CSS + `
+      #insup-content {
+        color: #17324d;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        line-height: 1.9;
+        letter-spacing: 0.01em;
+        padding: 2em 1.45em;
+        background:
+          linear-gradient(rgba(47, 107, 255, 0.07) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(47, 107, 255, 0.07) 1px, transparent 1px),
+          linear-gradient(180deg, rgba(255,255,255,0.92), rgba(246,250,255,0.96));
+        background-size: 28px 28px, 28px 28px, 100% 100%;
+        box-shadow:
+          inset 0 0 0 1px rgba(200, 216, 234, 0.95),
+          inset 0 24px 48px rgba(255, 255, 255, 0.75),
+          0 18px 50px rgba(47, 107, 255, 0.06);
+      }
+
+      #insup-content h1 {
+        color: #12314d;
+        font-size: 30px;
+        font-weight: 780;
+        line-height: 1.2;
+        letter-spacing: 0.04em;
+        margin: 1.2em 0 1em;
+      }
+      #insup-content h1::after {
+        content: "";
+        display: block;
+        width: 92px;
+        height: 4px;
+        margin-top: 0.5em;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #2f6bff, #6ed0ff);
+        box-shadow: 0 0 18px rgba(47, 107, 255, 0.2);
+      }
+
+      #insup-content h2 {
+        color: #17324d;
+        font-size: 20px;
+        font-weight: 730;
+        line-height: 1.35;
+        margin: 2.2em 0 1em;
+        padding: 0.55em 0.9em 0.55em 1.1em;
+        border-left: 4px solid #2f6bff;
+        background: linear-gradient(90deg, rgba(47, 107, 255, 0.14), rgba(110, 208, 255, 0.06) 68%, transparent 100%);
+        box-shadow: inset 0 0 0 1px rgba(200, 216, 234, 0.75);
+      }
+
+      #insup-content h3 {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #2a4c69;
+        font-size: 15px;
+        font-weight: 700;
+        margin: 1.8em 0 0.75em;
+        padding: 0.3em 0.75em;
+        border-radius: 999px;
+        background: rgba(47, 107, 255, 0.08);
+        border: 1px solid rgba(47, 107, 255, 0.14);
+      }
+      #insup-content h3::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #2f6bff, #6ed0ff);
+        box-shadow: 0 0 0 4px rgba(47, 107, 255, 0.1);
+      }
+
+      #insup-content p {
+        color: #26435e;
+        font-size: 15.5px;
+        line-height: 1.95;
+        margin: 0.95em 0;
+      }
+
+      #insup-content strong {
+        color: #12314d;
+        font-weight: 760;
+        box-shadow: inset 0 -0.42em 0 rgba(110, 208, 255, 0.32);
+      }
+      #insup-content em {
+        font-style: normal;
+        color: #2f6bff;
+      }
+      #insup-content a {
+        color: #2f6bff;
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 4px;
+      }
+
+      #insup-content blockquote {
+        position: relative;
+        margin: 2em 0;
+        padding: 18px 20px;
+        background:
+          linear-gradient(135deg, rgba(255,255,255,0.92), rgba(240,246,255,0.88)),
+          linear-gradient(rgba(47, 107, 255, 0.05) 1px, transparent 1px);
+        border: 1px dashed rgba(47, 107, 255, 0.45);
+        border-left: 4px solid #2f6bff;
+        border-radius: 14px;
+        box-shadow: 0 14px 30px rgba(47, 107, 255, 0.08);
+      }
+      #insup-content blockquote::before {
+        content: "NOTE";
+        display: inline-block;
+        margin-bottom: 10px;
+        padding: 0.28em 0.62em;
+        border-radius: 999px;
+        background: rgba(47, 107, 255, 0.1);
+        color: #2f6bff;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+      }
+      #insup-content blockquote p {
+        margin: 0.45em 0;
+        color: #27425c;
+      }
+
+      #insup-content ul,
+      #insup-content ol {
+        margin: 1.15em 0;
+      }
+      #insup-content li {
+        color: #26435e;
+        margin: 0.55em 0;
+      }
+      #insup-content li::marker {
+        color: #2f6bff;
+      }
+
+      #insup-content hr {
+        border: none;
+        margin: 2.8em 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(47, 107, 255, 0.82), rgba(110, 208, 255, 0.6), transparent);
+      }
+
+      #insup-content code {
+        color: #2458e6;
+        background: rgba(47, 107, 255, 0.08);
+        border: 1px solid rgba(47, 107, 255, 0.16);
+        border-radius: 6px;
+      }
+      #insup-content pre {
+        position: relative;
+        background: linear-gradient(180deg, #13243d 0%, #0f1e33 100%);
+        border: 1px solid rgba(110, 208, 255, 0.22);
+        border-radius: 16px;
+        padding: 18px 20px;
+        box-shadow: 0 16px 40px rgba(15, 30, 51, 0.18);
+      }
+      #insup-content pre::before {
+        content: "SNIPPET";
+        display: block;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(110, 208, 255, 0.16);
+        color: #6ed0ff;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+      }
+      #insup-content pre code {
+        padding: 0;
+        color: #b8f5ff;
+        background: transparent;
+        border: none;
+      }
+
+      #insup-content table {
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+        border: 1px solid #c8d8ea;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 14px 28px rgba(47, 107, 255, 0.06);
+      }
+      #insup-content th {
+        background: linear-gradient(180deg, #edf4ff, #dde9fb);
+        color: #16344d;
+        border-bottom: 1px solid #c8d8ea;
+        font-size: 12px;
+        font-weight: 760;
+        letter-spacing: 0.08em;
+      }
+      #insup-content td {
+        color: #26435e;
+        border-top: 1px solid rgba(200, 216, 234, 0.82);
+      }
+      #insup-content td + td,
+      #insup-content th + th {
+        border-left: 1px solid rgba(200, 216, 234, 0.82);
+      }
+      #insup-content tr:nth-child(even) td {
+        background: rgba(244, 248, 252, 0.92);
+      }
+
+      #insup-content img {
+        border-radius: 16px;
+        border: 1px solid rgba(200, 216, 234, 0.95);
+        box-shadow: 0 18px 36px rgba(47, 107, 255, 0.08);
+      }
+
+      #insup-content kbd {
+        background: rgba(47, 107, 255, 0.08);
+        border-color: rgba(47, 107, 255, 0.18);
+        color: #2458e6;
+      }
+    `,
+    preview: 'linear-gradient(135deg, #f4f8fc 0%, #eef5ff 50%, #dde9fb 100%)',
+  },
+  {
+    id: 'brutalist',
+    name: '野兽派',
+    description: '高对比、强观点、海报式信息冲击',
+    containerStyle: 'max-width:677px;margin:0 auto;background:#f6f1e8;color:#111111;padding:34px 26px;font-family:-apple-system,BlinkMacSystemFont,"Inter","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;',
+    css: BASE_CSS + `
+      #insup-content {
+        background:
+          linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0)),
+          linear-gradient(135deg, #f6f1e8 0%, #f3ebdd 100%);
+        color: #111111;
+        font-family: -apple-system, BlinkMacSystemFont, "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        line-height: 1.82;
+        padding: 2em 1.35em;
+        box-shadow: inset 0 0 0 3px #111111;
+      }
+
+      #insup-content h1 {
+        color: #111111;
+        font-size: 34px;
+        font-weight: 900;
+        line-height: 1.06;
+        letter-spacing: -0.06em;
+        margin: 1em 0 0.85em;
+        text-wrap: balance;
+      }
+      #insup-content h1::after {
+        content: "";
+        display: block;
+        width: 100px;
+        height: 8px;
+        margin-top: 0.45em;
+        background: #ffd400;
+      }
+
+      #insup-content h2 {
+        display: inline-block;
+        margin: 2.2em 0 1em;
+        padding: 0.45em 0.75em;
+        color: #111111;
+        background: #ffd400;
+        border: 3px solid #111111;
+        box-shadow: 6px 6px 0 #111111;
+        font-size: 20px;
+        font-weight: 860;
+        line-height: 1.2;
+        letter-spacing: -0.04em;
+      }
+
+      #insup-content h3 {
+        display: inline-block;
+        margin: 1.8em 0 0.8em;
+        padding: 0.28em 0.6em;
+        color: #ffffff;
+        background: #111111;
+        border: 2px solid #111111;
+        font-size: 14px;
+        font-weight: 820;
+        letter-spacing: 0.08em;
+      }
+
+      #insup-content p {
+        color: #1c1c1c;
+        font-size: 16px;
+        line-height: 1.85;
+        margin: 1em 0;
+      }
+
+      #insup-content strong {
+        color: #111111;
+        font-weight: 860;
+        background: #ffd400;
+        padding: 0.05em 0.28em;
+      }
+      #insup-content em {
+        color: #111111;
+        font-style: normal;
+        box-shadow: inset 0 -0.45em 0 rgba(255, 212, 0, 0.35);
+      }
+      #insup-content a {
+        color: #111111;
+        text-decoration: none;
+        border-bottom: 3px solid #ffd400;
+      }
+
+      #insup-content blockquote {
+        position: relative;
+        margin: 2em 0;
+        padding: 18px 20px;
+        background: #fffdf7;
+        border: 4px solid #111111;
+        box-shadow: 10px 10px 0 rgba(17, 17, 17, 0.14);
+      }
+      #insup-content blockquote::before {
+        content: "QUOTE";
+        display: inline-block;
+        margin-bottom: 12px;
+        padding: 0.28em 0.58em;
+        background: #ffd400;
+        color: #111111;
+        font-size: 11px;
+        font-weight: 860;
+        letter-spacing: 0.12em;
+      }
+      #insup-content blockquote p {
+        margin: 0.45em 0;
+        color: #1c1c1c;
+      }
+
+      #insup-content ul,
+      #insup-content ol {
+        padding-left: 1.45em;
+      }
+      #insup-content li {
+        color: #1c1c1c;
+        margin: 0.55em 0;
+      }
+      #insup-content li::marker {
+        color: #111111;
+      }
+
+      #insup-content hr {
+        border: none;
+        margin: 2.8em 0;
+        height: 6px;
+        background: repeating-linear-gradient(
+          90deg,
+          #111111 0 18px,
+          #ffd400 18px 36px
+        );
+      }
+
+      #insup-content code {
+        background: #ffd400;
+        color: #111111;
+        border: 2px solid #111111;
+        border-radius: 0;
+        font-weight: 760;
+      }
+      #insup-content pre {
+        background: #111111;
+        border: 3px solid #111111;
+        border-radius: 0;
+        padding: 18px 20px;
+        box-shadow: 10px 10px 0 rgba(17, 17, 17, 0.2);
+      }
+      #insup-content pre::before {
+        content: "SYSTEM OUTPUT";
+        display: block;
+        margin: -19px -19px 16px;
+        padding: 10px 14px;
+        background: #ffd400;
+        color: #111111;
+        font-size: 11px;
+        font-weight: 860;
+        letter-spacing: 0.14em;
+      }
+      #insup-content pre code {
+        padding: 0;
+        color: #f9f6f0;
+        background: transparent;
+        border: none;
+      }
+
+      #insup-content table {
+        border-collapse: collapse;
+        border: 3px solid #111111;
+        background: #ffffff;
+      }
+      #insup-content th {
+        background: #111111;
+        color: #ffffff;
+        border: 3px solid #111111;
+        font-size: 12px;
+        font-weight: 860;
+        letter-spacing: 0.1em;
+      }
+      #insup-content td {
+        color: #1c1c1c;
+        border: 3px solid #111111;
+        background: #fffdf7;
+      }
+      #insup-content tr:nth-child(even) td {
+        background: #fff4bc;
+      }
+
+      #insup-content img {
+        border-radius: 0;
+        border: 3px solid #111111;
+        box-shadow: 10px 10px 0 rgba(17, 17, 17, 0.15);
+      }
+
+      #insup-content kbd {
+        background: #111111;
+        border-color: #111111;
+        color: #ffd400;
+        border-radius: 0;
+      }
+    `,
+    preview: 'linear-gradient(135deg, #f6f1e8 0%, #fff4bc 100%)',
+  },
+  {
+    id: 'aurora-glass',
+    name: '极光玻璃',
+    description: '极光渐变、AI 感、轻盈毛玻璃层次',
+    containerStyle: 'max-width:677px;margin:0 auto;background:#f7fbff;color:#16233b;padding:36px 28px;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;',
+    css: BASE_CSS + `
+      #insup-content {
+        color: #16233b;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        line-height: 1.9;
+        padding: 2em 1.45em;
+        background:
+          radial-gradient(circle at 0% 0%, rgba(82, 229, 231, 0.2), transparent 28%),
+          radial-gradient(circle at 100% 12%, rgba(123, 97, 255, 0.17), transparent 24%),
+          radial-gradient(circle at 84% 100%, rgba(255, 122, 217, 0.12), transparent 22%),
+          linear-gradient(180deg, rgba(255,255,255,0.92), rgba(245,249,255,0.92));
+        border: 1px solid rgba(122, 144, 255, 0.18);
+        border-radius: 24px;
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,0.78),
+          0 24px 60px rgba(91, 107, 136, 0.14);
+        backdrop-filter: blur(22px);
+      }
+
+      #insup-content h1 {
+        color: #16233b;
+        font-size: 30px;
+        font-weight: 780;
+        line-height: 1.16;
+        letter-spacing: -0.03em;
+        margin: 1.1em 0 0.95em;
+      }
+      #insup-content h1::after {
+        content: "";
+        display: block;
+        width: 110px;
+        height: 4px;
+        margin-top: 0.55em;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #52e5e7 0%, #7b61ff 55%, #ff7ad9 100%);
+        box-shadow: 0 0 20px rgba(123, 97, 255, 0.2);
+      }
+
+      #insup-content h2 {
+        display: inline-flex;
+        align-items: center;
+        margin: 2em 0 1em;
+        padding: 0.48em 0.88em;
+        color: #1a2842;
+        background: rgba(255, 255, 255, 0.62);
+        border: 1px solid rgba(122, 144, 255, 0.2);
+        border-radius: 999px;
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,0.72),
+          0 10px 30px rgba(123, 97, 255, 0.09);
+        backdrop-filter: blur(18px);
+        font-size: 19px;
+        font-weight: 720;
+      }
+
+      #insup-content h3 {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        color: #415372;
+        font-size: 15px;
+        font-weight: 700;
+        margin: 1.75em 0 0.8em;
+      }
+      #insup-content h3::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #52e5e7 0%, #7b61ff 55%, #ff7ad9 100%);
+        box-shadow: 0 0 18px rgba(123, 97, 255, 0.24);
+      }
+
+      #insup-content p {
+        color: #324763;
+        font-size: 15.5px;
+        line-height: 1.95;
+        margin: 0.95em 0;
+      }
+
+      #insup-content strong {
+        color: #16233b;
+        font-weight: 760;
+        box-shadow: inset 0 -0.42em 0 rgba(123, 97, 255, 0.14);
+      }
+      #insup-content em {
+        font-style: normal;
+        color: #6556d8;
+      }
+      #insup-content a {
+        color: #4b56e6;
+        text-decoration: underline;
+        text-decoration-color: rgba(123, 97, 255, 0.35);
+        text-decoration-thickness: 2px;
+        text-underline-offset: 4px;
+      }
+
+      #insup-content blockquote {
+        position: relative;
+        margin: 2em 0;
+        padding: 18px 20px;
+        background: rgba(255, 255, 255, 0.56);
+        border: 1px solid rgba(122, 144, 255, 0.22);
+        border-radius: 18px;
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,0.82),
+          0 18px 42px rgba(122, 144, 255, 0.12);
+        backdrop-filter: blur(18px);
+      }
+      #insup-content blockquote::before {
+        content: "AURORA NOTE";
+        display: inline-block;
+        margin-bottom: 10px;
+        padding: 0.3em 0.65em;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.66);
+        border: 1px solid rgba(122, 144, 255, 0.18);
+        color: #6a5ce0;
+        font-size: 11px;
+        font-weight: 780;
+        letter-spacing: 0.12em;
+      }
+      #insup-content blockquote p {
+        margin: 0.45em 0;
+        color: #324763;
+      }
+
+      #insup-content ul,
+      #insup-content ol {
+        margin: 1.15em 0;
+      }
+      #insup-content li {
+        color: #324763;
+        margin: 0.55em 0;
+      }
+      #insup-content li::marker {
+        color: #7b61ff;
+      }
+
+      #insup-content hr {
+        border: none;
+        margin: 2.8em 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(82, 229, 231, 0.82), rgba(123, 97, 255, 0.82), rgba(255, 122, 217, 0.72), transparent);
+      }
+
+      #insup-content code {
+        color: #4f58d8;
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(122, 144, 255, 0.16);
+        border-radius: 8px;
+      }
+      #insup-content pre {
+        position: relative;
+        background: #0e172a;
+        border: 1px solid rgba(82, 229, 231, 0.16);
+        border-radius: 18px;
+        padding: 18px 20px;
+        box-shadow: 0 18px 44px rgba(14, 23, 42, 0.2);
+      }
+      #insup-content pre::before {
+        content: "";
+        display: block;
+        height: 3px;
+        margin: -19px -19px 16px;
+        border-radius: 18px 18px 0 0;
+        background: linear-gradient(135deg, #52e5e7 0%, #7b61ff 55%, #ff7ad9 100%);
+      }
+      #insup-content pre code {
+        padding: 0;
+        color: #e7f4ff;
+        background: transparent;
+        border: none;
+      }
+
+      #insup-content table {
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+        border: 1px solid rgba(122, 144, 255, 0.18);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.58);
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,0.76),
+          0 16px 36px rgba(122, 144, 255, 0.1);
+        backdrop-filter: blur(16px);
+      }
+      #insup-content th {
+        background: linear-gradient(135deg, rgba(82, 229, 231, 0.18), rgba(123, 97, 255, 0.14), rgba(255, 122, 217, 0.12));
+        color: #22304a;
+        border-bottom: 1px solid rgba(122, 144, 255, 0.16);
+        font-size: 12px;
+        font-weight: 760;
+      }
+      #insup-content td {
+        color: #324763;
+        border-top: 1px solid rgba(122, 144, 255, 0.12);
+      }
+      #insup-content tr:nth-child(even) td {
+        background: rgba(255, 255, 255, 0.16);
+      }
+
+      #insup-content img {
+        border-radius: 18px;
+        border: 1px solid rgba(122, 144, 255, 0.18);
+        box-shadow: 0 18px 40px rgba(122, 144, 255, 0.12);
+      }
+
+      #insup-content kbd {
+        background: rgba(255, 255, 255, 0.7);
+        border-color: rgba(122, 144, 255, 0.18);
+        color: #4f58d8;
+      }
+    `,
+    preview: 'linear-gradient(135deg, #f7fbff 0%, #eaf5ff 45%, #fceaff 100%)',
+  },
+  {
     id: 'sketch',
     name: '手绘',
     description: '手绘涂鸦风格',

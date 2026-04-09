@@ -179,6 +179,12 @@ export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
       word-wrap: break-word;
       overflow-wrap: break-word;
       word-break: break-word;
+      background: transparent !important;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      outline: none !important;
+      backdrop-filter: none !important;
       padding: 0 !important;
       margin: 0 !important;
       min-height: auto !important;
@@ -191,6 +197,11 @@ export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
       padding: 0 !important;
       margin: 0 !important;
       background: transparent !important;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      outline: none !important;
+      backdrop-filter: none !important;
     }
     #xhs-content #insup-content > * {
       margin-top: 0 !important;
