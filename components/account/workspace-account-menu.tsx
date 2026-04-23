@@ -6,7 +6,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronDown,
   Clock3,
-  KeyRound,
   Loader2,
   LogOut,
   Mail,
@@ -193,30 +192,9 @@ export function WorkspaceAccountMenu({
 
               {authStatus === "signed-in" && profile ? (
                 <>
-                  <section className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-sm font-black tracking-tight text-zinc-950">
-                          账号信息
-                        </h3>
-                        <p className="text-xs leading-5 text-zinc-500">
-                          当前邮箱先展示为只读，后续再接邮箱修改流程。
-                        </p>
-                      </div>
-                    </div>
-                    <div className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-400">
-                        Email
-                      </p>
-                      <p className="mt-2 text-sm font-semibold text-zinc-900">
-                        {profile.email}
-                      </p>
-                    </div>
-                  </section>
-
-                  <section className="space-y-3">
+                  <section className="space-y-3 rounded-2xl border border-zinc-200 bg-zinc-50/85 px-4 py-4">
                     <div>
-                      <h3 className="text-sm font-black tracking-tight text-zinc-950">
+                      <h3 className="text-sm font-bold tracking-tight text-zinc-950">
                         修改密码
                       </h3>
                       <p className="text-xs leading-5 text-zinc-500">
@@ -224,14 +202,14 @@ export function WorkspaceAccountMenu({
                       </p>
                     </div>
 
-                    <form className="space-y-3" onSubmit={handlePasswordSubmit}>
+                    <form className="space-y-2.5" onSubmit={handlePasswordSubmit}>
                       <input
                         type="password"
                         autoComplete="new-password"
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
                         placeholder="新密码，至少 8 位"
-                        className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-4 focus:ring-zinc-200/70"
+                        className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-4 focus:ring-zinc-200/70"
                       />
                       <input
                         type="password"
@@ -239,19 +217,20 @@ export function WorkspaceAccountMenu({
                         value={confirmPassword}
                         onChange={(event) => setConfirmPassword(event.target.value)}
                         placeholder="再次输入新密码"
-                        className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-4 focus:ring-zinc-200/70"
+                        className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-4 focus:ring-zinc-200/70"
                       />
 
                       {passwordError ? (
-                        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-700">
+                        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm leading-6 text-red-700">
                           {passwordError}
                         </div>
                       ) : null}
 
                       <Button
                         type="submit"
+                        variant="outline"
                         disabled={isChangingPassword}
-                        className="h-10 rounded-2xl bg-zinc-900 px-4 text-sm font-bold text-white hover:bg-zinc-800"
+                        className="h-9 rounded-xl border-zinc-200 bg-white px-3 text-sm font-bold text-zinc-700 hover:border-zinc-300 hover:bg-white"
                       >
                         {isChangingPassword ? (
                           <>
@@ -259,10 +238,7 @@ export function WorkspaceAccountMenu({
                             更新中
                           </>
                         ) : (
-                          <>
-                            <KeyRound className="size-4" />
-                            更新密码
-                          </>
+                          "更新密码"
                         )}
                       </Button>
                     </form>

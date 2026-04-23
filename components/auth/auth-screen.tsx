@@ -278,9 +278,7 @@ export function AuthScreen({ mode, verified = false }: AuthScreenProps) {
 
       setPendingVerificationEmail(email.trim());
       setResendCooldown(60);
-      setNotice(
-        `注册成功，验证链接已发送到 ${email.trim()}。请先去邮箱完成验证。`,
-      );
+      setNotice("验证邮件已发送，请查收邮箱。");
     } finally {
       setIsSubmitting(false);
     }

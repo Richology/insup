@@ -13,6 +13,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HomeAccountEntry } from "@/components/account/home-account-entry";
 import { InSupLockup } from "@/components/brand/insup-lockup";
 
 const features = [
@@ -249,13 +250,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-screen-xl items-center justify-between gap-4 px-6 py-4">
           <Brand />
           <div className="flex items-center gap-3">
-            <Button
-              asChild
-              variant="outline"
-              className="rounded-full border-zinc-200 bg-white px-5 text-zinc-700 shadow-sm hover:border-zinc-300 hover:bg-white"
-            >
-              <Link href="/auth">登录</Link>
-            </Button>
+            <HomeAccountEntry />
             <Button
               asChild
               className="rounded-full bg-zinc-900 px-6 text-white hover:bg-zinc-800"
