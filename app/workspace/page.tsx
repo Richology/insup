@@ -22,6 +22,7 @@ import { injectReadInfo, getCleanText } from "@/lib/utils-content";
 import JSZip from "jszip";
 
 import type { EditorMethods } from "@/components/editor/mdx-editor";
+import { Button } from "@/components/ui/button";
 import { TopNav } from "@/components/editor/top-nav";
 import { ContextMenu } from "@/components/editor/context-menu";
 import type { SlidePreviewMethods } from "@/types";
@@ -68,6 +69,15 @@ function isPreviewMode(
 
 function isStyleTheme(value: unknown): value is "wechat" | "poster" | "slide" {
   return value === "wechat" || value === "poster" || value === "slide";
+}
+
+function formatRecentDraftTime(value: string) {
+  return new Intl.DateTimeFormat("zh-CN", {
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
 }
 
 export default function InSupEditor() {
@@ -145,6 +155,12 @@ export default function InSupEditor() {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [accountNotice, setAccountNotice] = useState<string | null>(null);
   const [accountError, setAccountError] = useState<string | null>(null);
+  const [recentDraftPromptId, setRecentDraftPromptId] = useState<string | null>(
+    null,
+  );
+  const [dismissedRecentDraftId, setDismissedRecentDraftId] = useState<
+    string | null
+  >(null);
   const [exportProgress, setExportProgress] = useState<
     { current: number; total: number } | undefined
   >(undefined);
@@ -409,6 +425,35 @@ export default function InSupEditor() {
     loadAccountSnapshot,
   ]);
 
+  useEffect(() => {
+    const hasLinkedCloudDraft =
+      authStatus === "signed-in" &&
+      !!currentUser &&
+      !!activeCloudDocumentId &&
+      activeCloudUserId === currentUser.id;
+
+    if (authStatus !== "signed-in" || !historyItems.length || hasLinkedCloudDraft) {
+      setRecentDraftPromptId(null);
+      return;
+    }
+
+    const latestDraft = historyItems[0];
+
+    if (dismissedRecentDraftId === latestDraft.id) {
+      setRecentDraftPromptId(null);
+      return;
+    }
+
+    setRecentDraftPromptId(latestDraft.id);
+  }, [
+    activeCloudDocumentId,
+    activeCloudUserId,
+    authStatus,
+    currentUser,
+    dismissedRecentDraftId,
+    historyItems,
+  ]);
+
   const handleCopy = useCallback(async () => {
     try {
       if (isVisualMode) {
@@ -500,6 +545,8 @@ export default function InSupEditor() {
 
         setActiveCloudDocument(item.id, currentUser.id);
         setSaveStatus("idle");
+        setRecentDraftPromptId(null);
+        setDismissedRecentDraftId(item.id);
         setAccountError(null);
         setAccountNotice(`已载入《${item.title}》`);
       } catch (error) {
@@ -969,6 +1016,10 @@ export default function InSupEditor() {
     !!currentUser &&
     !!activeCloudDocumentId &&
     activeCloudUserId === currentUser.id;
+  const recentDraftPrompt =
+    recentDraftPromptId != null
+      ? historyItems.find((item) => item.id === recentDraftPromptId) ?? null
+      : null;
   const saveDraftLabel =
     authStatus !== "signed-in"
       ? "登录后保存"
@@ -1020,6 +1071,48 @@ export default function InSupEditor() {
         onChangePassword={handleChangePassword}
         onSignOut={handleSignOut}
       />
+
+      {recentDraftPrompt ? (
+        <div className="px-6 pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-4 rounded-[28px] border border-zinc-200 bg-white/88 px-5 py-4 shadow-[0_16px_40px_-30px_rgba(0,0,0,0.24)] backdrop-blur">
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-zinc-400">
+                Recent cloud draft
+              </p>
+              <p className="mt-2 text-sm font-bold text-zinc-950">
+                检测到最近云端草稿《{recentDraftPrompt.title}》
+              </p>
+              <p className="mt-1 text-sm leading-6 text-zinc-500">
+                最近更新于 {formatRecentDraftTime(recentDraftPrompt.updatedAt)}。
+                你可以恢复这篇草稿，或者继续保留当前本地内容。
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  void handleOpenHistoryItem(recentDraftPrompt.id);
+                }}
+                className="h-10 rounded-2xl border-zinc-200 bg-white px-4 text-sm font-bold text-zinc-700 hover:border-zinc-300 hover:bg-white"
+              >
+                恢复最近草稿
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setDismissedRecentDraftId(recentDraftPrompt.id);
+                  setRecentDraftPromptId(null);
+                }}
+                className="h-10 rounded-2xl px-3 text-sm font-bold text-zinc-600 hover:bg-zinc-100"
+              >
+                继续当前内容
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <main className="relative flex flex-1 gap-6 overflow-hidden px-6 pb-6 pt-4">
         <AnimatePresence mode="popLayout" initial={false}>

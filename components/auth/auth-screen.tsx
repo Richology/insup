@@ -76,6 +76,7 @@ export function AuthScreen({ mode, verified = false }: AuthScreenProps) {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const isStatusState = !!pendingVerificationEmail || verified;
 
   const title = isSignIn ? "欢迎回来" : "创建你的 InSup 账号";
   const subtitle = isSignIn
@@ -200,6 +201,14 @@ export function AuthScreen({ mode, verified = false }: AuthScreenProps) {
     setResendCooldown(0);
     router.replace("/auth?mode=sign-up");
   };
+
+  const statusEyebrow = verified ? "Account ready" : "Sign up complete";
+  const statusTitle = verified ? "欢迎回来" : "注册成功";
+  const statusDescription = verified
+    ? "邮箱验证已经完成，账号可以正常使用了。"
+    : pendingVerificationEmail
+      ? `验证邮件已经发送到 ${pendingVerificationEmail}。完成邮箱验证后，账号能力就会自动生效。`
+      : "";
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -341,98 +350,69 @@ export function AuthScreen({ mode, verified = false }: AuthScreenProps) {
 
               <div className="mt-8 space-y-3">
                 <p className="text-sm font-bold uppercase tracking-[0.28em] text-zinc-400">
-                  {isSignIn ? "Sign in" : "Sign up"}
+                  {isStatusState ? statusEyebrow : isSignIn ? "Sign in" : "Sign up"}
                 </p>
                 <h1 className="text-3xl font-black tracking-tight text-zinc-950 md:text-[2.6rem] md:leading-[1.02]">
-                  {title}
+                  {isStatusState ? statusTitle : title}
                 </h1>
                 <p className="max-w-xl text-sm leading-7 text-zinc-500 md:text-[15px]">
-                  {subtitle}
+                  {isStatusState ? statusDescription : subtitle}
                 </p>
-                <div className="inline-flex max-w-xl items-start gap-3 rounded-[24px] border border-zinc-200 bg-zinc-50/80 px-4 py-4">
-                  <ShieldCheck className="mt-0.5 size-4 shrink-0 text-zinc-500" />
-                  <div>
-                    <p className="text-sm font-bold text-zinc-900">本地优先</p>
-                    <p className="mt-1 text-sm leading-6 text-zinc-500">
-                      不登录也能继续创作。账号只负责同步草稿、历史记录和后续账户能力。
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
-                <label className="block space-y-2">
-                  <span className="text-sm font-semibold text-zinc-700">邮箱</span>
-                  <input
-                    type="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    placeholder="name@company.com"
-                    className={fieldClassName}
-                  />
-                </label>
-
-                <label className="block space-y-2">
-                  <span className="text-sm font-semibold text-zinc-700">密码</span>
-                  <input
-                    type="password"
-                    autoComplete={isSignIn ? "current-password" : "new-password"}
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    placeholder={isSignIn ? "输入密码" : "至少 8 位"}
-                    className={fieldClassName}
-                  />
-                </label>
-
-                {!isSignIn ? (
-                  <label className="block space-y-2">
-                    <span className="text-sm font-semibold text-zinc-700">
-                      确认密码
-                    </span>
-                    <input
-                      type="password"
-                      autoComplete="new-password"
-                      value={confirmPassword}
-                      onChange={(event) => setConfirmPassword(event.target.value)}
-                      placeholder="再次输入密码"
-                      className={fieldClassName}
-                    />
-                  </label>
-                ) : null}
-
-                {error ? (
-                  <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-700">
-                    {error}
-                  </div>
-                ) : null}
-
-                {notice ? (
-                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-700">
-                    <div className="flex items-start gap-2">
-                      {isHandlingVerifiedReturn ? (
-                        <Loader2 className="mt-0.5 size-4 shrink-0 animate-spin" />
-                      ) : null}
-                      <span>{notice}</span>
+                {!isStatusState ? (
+                  <div className="inline-flex max-w-xl items-start gap-3 rounded-[24px] border border-zinc-200 bg-zinc-50/80 px-4 py-4">
+                    <ShieldCheck className="mt-0.5 size-4 shrink-0 text-zinc-500" />
+                    <div>
+                      <p className="text-sm font-bold text-zinc-900">本地优先</p>
+                      <p className="mt-1 text-sm leading-6 text-zinc-500">
+                        不登录也能继续创作。账号只负责同步草稿、历史记录和后续账户能力。
+                      </p>
                     </div>
                   </div>
                 ) : null}
+              </div>
 
-                {pendingVerificationEmail ? (
-                  <div className="rounded-[28px] border border-zinc-200 bg-zinc-50/90 px-4 py-4 shadow-[0_12px_30px_-24px_rgba(0,0,0,0.2)]">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-zinc-400">
-                      Email verification
-                    </p>
-                    <p className="mt-3 text-sm leading-6 text-zinc-600">
-                      验证链接已经发往：
-                      <span className="ml-1 font-semibold text-zinc-900">
-                        {pendingVerificationEmail}
+              {isStatusState ? (
+                <div className="mt-8 space-y-4">
+                  {error ? (
+                    <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-700">
+                      {error}
+                    </div>
+                  ) : null}
+
+                  {notice ? (
+                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-700">
+                      <div className="flex items-start gap-2">
+                        {isHandlingVerifiedReturn ? (
+                          <Loader2 className="mt-0.5 size-4 shrink-0 animate-spin" />
+                        ) : null}
+                        <span>{notice}</span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <Button
+                    asChild={!isHandlingVerifiedReturn}
+                    type="button"
+                    disabled={isHandlingVerifiedReturn}
+                    className="h-12 w-full rounded-2xl bg-zinc-900 px-5 text-sm font-bold text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isHandlingVerifiedReturn ? (
+                      <span className="inline-flex items-center gap-2">
+                        <Loader2 className="size-4 animate-spin" />
+                        正在进入 Workspace...
                       </span>
-                    </p>
-                    <p className="mt-1 text-sm leading-6 text-zinc-500">
-                      请点击邮件里的验证链接完成注册。验证完成后会自动回到这里并进入工作台。
-                    </p>
-                    <div className="mt-4 flex flex-wrap items-center gap-3">
+                    ) : (
+                      <Link href="/workspace">
+                        <span className="inline-flex items-center gap-2">
+                          进入 Workspace
+                          <ArrowRight className="size-4" />
+                        </span>
+                      </Link>
+                    )}
+                  </Button>
+
+                  {pendingVerificationEmail ? (
+                    <div className="flex flex-wrap items-center gap-3 pt-1">
                       <Button
                         type="button"
                         variant="outline"
@@ -457,49 +437,108 @@ export function AuthScreen({ mode, verified = false }: AuthScreenProps) {
                         换一个邮箱重新注册
                       </Button>
                     </div>
-                  </div>
-                ) : null}
+                  ) : null}
+                </div>
+              ) : (
+                <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+                  <label className="block space-y-2">
+                    <span className="text-sm font-semibold text-zinc-700">邮箱</span>
+                    <input
+                      type="email"
+                      autoComplete="email"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      placeholder="name@company.com"
+                      className={fieldClassName}
+                    />
+                  </label>
 
-                <Button
-                  type="submit"
-                  disabled={isSubmitting || !supabase}
-                  className="h-12 w-full rounded-2xl bg-zinc-900 px-5 text-sm font-bold text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {isSubmitting ? (
-                    <span className="inline-flex items-center gap-2">
-                      <Sparkles className="size-4 animate-pulse" />
-                      处理中...
-                    </span>
+                  <label className="block space-y-2">
+                    <span className="text-sm font-semibold text-zinc-700">密码</span>
+                    <input
+                      type="password"
+                      autoComplete={isSignIn ? "current-password" : "new-password"}
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      placeholder={isSignIn ? "输入密码" : "至少 8 位"}
+                      className={fieldClassName}
+                    />
+                  </label>
+
+                  {!isSignIn ? (
+                    <label className="block space-y-2">
+                      <span className="text-sm font-semibold text-zinc-700">
+                        确认密码
+                      </span>
+                      <input
+                        type="password"
+                        autoComplete="new-password"
+                        value={confirmPassword}
+                        onChange={(event) => setConfirmPassword(event.target.value)}
+                        placeholder="再次输入密码"
+                        className={fieldClassName}
+                      />
+                    </label>
+                  ) : null}
+
+                  {error ? (
+                    <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-700">
+                      {error}
+                    </div>
+                  ) : null}
+
+                  {notice ? (
+                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-700">
+                      <div className="flex items-start gap-2">
+                        {isHandlingVerifiedReturn ? (
+                          <Loader2 className="mt-0.5 size-4 shrink-0 animate-spin" />
+                        ) : null}
+                        <span>{notice}</span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting || !supabase}
+                    className="h-12 w-full rounded-2xl bg-zinc-900 px-5 text-sm font-bold text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isSubmitting ? (
+                      <span className="inline-flex items-center gap-2">
+                        <Sparkles className="size-4 animate-pulse" />
+                        处理中...
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-2">
+                        {primaryLabel}
+                        <ArrowRight className="size-4" />
+                      </span>
+                    )}
+                  </Button>
+
+                  {isSignIn ? (
+                    <p className="text-sm leading-6 text-zinc-500">
+                      还没有账号？
+                      <Link
+                        href="/auth?mode=sign-up"
+                        className="ml-1 font-bold text-zinc-900 transition-opacity hover:opacity-70"
+                      >
+                        先注册
+                      </Link>
+                    </p>
                   ) : (
-                    <span className="inline-flex items-center gap-2">
-                      {primaryLabel}
-                      <ArrowRight className="size-4" />
-                    </span>
+                    <p className="text-sm leading-6 text-zinc-500">
+                      已经有账号了？
+                      <Link
+                        href="/auth"
+                        className="ml-1 font-bold text-zinc-900 transition-opacity hover:opacity-70"
+                      >
+                        直接登录
+                      </Link>
+                    </p>
                   )}
-                </Button>
-
-                {isSignIn ? (
-                  <p className="text-sm leading-6 text-zinc-500">
-                    还没有账号？
-                    <Link
-                      href="/auth?mode=sign-up"
-                      className="ml-1 font-bold text-zinc-900 transition-opacity hover:opacity-70"
-                    >
-                      先注册
-                    </Link>
-                  </p>
-                ) : (
-                  <p className="text-sm leading-6 text-zinc-500">
-                    已经有账号了？
-                    <Link
-                      href="/auth"
-                      className="ml-1 font-bold text-zinc-900 transition-opacity hover:opacity-70"
-                    >
-                      直接登录
-                    </Link>
-                  </p>
-                )}
-              </form>
+                </form>
+              )}
 
               {!supabase ? (
                 <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-6 text-amber-700">
