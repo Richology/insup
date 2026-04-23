@@ -8,15 +8,16 @@ import { languages } from "@codemirror/language-data";
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
 import { syntaxHighlighting, defaultHighlightStyle } from "@codemirror/language";
 import { cn } from "@/lib/utils";
-import type { EditorMethods, SelectionInfo } from "@/types";
+import type { EditorMethods, SelectionInfo, SelectionCoords, SlashTriggerInfo } from "@/types";
 
-export type { EditorMethods, SelectionInfo } from "@/types";
+export type { EditorMethods, SelectionInfo, SlashTriggerInfo } from "@/types";
 
 interface EditorProps {
   markdown: string;
   onChange: (markdown: string) => void;
   onPaste?: (e: ClipboardEvent) => void;
   onSelectionChange?: (info: SelectionInfo) => void;
+  onSlashTrigger?: (info: SlashTriggerInfo | null) => void;
   onPushHistory?: () => void;
   className?: string;
   isXHSTheme?: boolean;
@@ -79,7 +80,7 @@ const insupEditorTheme = EditorView.theme({
 });
 
 const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
-  ({ markdown: initialMarkdown, onChange, onPaste, onSelectionChange, onPushHistory, className }, ref) => {
+  ({ markdown: initialMarkdown, onChange, onPaste, onSelectionChange, onSlashTrigger, onPushHistory, className }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const viewRef = useRef<EditorView | null>(null);
     const onChangeRef = useRef(onChange);
@@ -93,6 +94,52 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
 
     const clampPos = (pos: number, length: number) =>
       Math.max(0, Math.min(pos, length));
+
+    const getRelativeCoords = (pos: number): SelectionCoords | null => {
+      const view = viewRef.current;
+      const container = containerRef.current;
+      if (!view || !container) return null;
+
+      try {
+        const coords = view.coordsAtPos(clampPos(pos, view.state.doc.length));
+        if (!coords) return null;
+
+        const parentRect = container.getBoundingClientRect();
+        return {
+          top: coords.top - parentRect.top,
+          left: coords.left - parentRect.left,
+          width: Math.max(0, coords.right - coords.left),
+          height: Math.max(20, coords.bottom - coords.top),
+        };
+      } catch {
+        return null;
+      }
+    };
+
+    const getSlashTriggerInfo = (state: EditorState): SlashTriggerInfo | null => {
+      const selection = state.selection.main;
+      if (!selection.empty) return null;
+
+      const line = state.doc.lineAt(selection.from);
+      const beforeCursor = state.doc.sliceString(line.from, selection.from);
+      const slashIndex = beforeCursor.lastIndexOf("\\");
+      if (slashIndex < 0) return null;
+
+      const charBeforeSlash = beforeCursor[slashIndex - 1];
+      if (slashIndex > 0 && charBeforeSlash && !/\s/.test(charBeforeSlash)) {
+        return null;
+      }
+
+      const query = beforeCursor.slice(slashIndex + 1);
+      if (/\s|\\/.test(query)) return null;
+
+      return {
+        from: line.from + slashIndex,
+        to: selection.from,
+        query,
+        coords: getRelativeCoords(selection.from),
+      };
+    };
 
     // 暴露给父组件的方法
     useImperativeHandle(ref, () => ({
@@ -157,6 +204,22 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
           selection: {
             anchor: clampPos(from + before.length, nextLength),
             head: clampPos(from + before.length + selected.length, nextLength),
+          },
+        });
+        view.focus();
+      },
+      replaceRange: (from: number, to: number, text: string, cursorOffset = text.length) => {
+        const view = viewRef.current;
+        if (!view) return;
+        const docLength = view.state.doc.length;
+        const safeFrom = clampPos(from, docLength);
+        const safeTo = clampPos(to, docLength);
+        const insertLength = text.length;
+        const nextLength = docLength - (safeTo - safeFrom) + insertLength;
+        view.dispatch({
+          changes: { from: safeFrom, to: safeTo, insert: text },
+          selection: {
+            anchor: clampPos(safeFrom + cursorOffset, nextLength),
           },
         });
         view.focus();
@@ -246,6 +309,9 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
                 text: update.state.doc.sliceString(sel.from, sel.to),
                 empty: sel.empty
               });
+            }
+            if (update.docChanged || update.selectionSet) {
+              onSlashTrigger?.(getSlashTriggerInfo(update.state));
             }
           }),
           EditorView.domEventHandlers({

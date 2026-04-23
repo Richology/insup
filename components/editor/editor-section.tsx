@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import { Loader2, X } from "lucide-react";
-import type { EditorMethods, SelectionInfo } from "./mdx-editor";
+import type { EditorMethods, SelectionInfo, SlashTriggerInfo } from "./mdx-editor";
 import { getReadInfo } from "@/lib/utils-content";
 
 const MDXEditor = dynamic(() => import("./mdx-editor"), { ssr: false });
@@ -23,6 +23,7 @@ interface EditorSectionProps {
   toolbar?: React.ReactNode;
   floatingToolbar?: React.ReactNode;
   onSelectionChange?: (info: SelectionInfo) => void;
+  onSlashTrigger?: (info: SlashTriggerInfo | null) => void;
   onInsertPageBreak?: () => void;
   onPushHistory?: () => void;
 }
@@ -40,6 +41,7 @@ export const EditorSection = ({
   toolbar,
   floatingToolbar,
   onSelectionChange,
+  onSlashTrigger,
   onInsertPageBreak,
   onPushHistory,
 }: EditorSectionProps) => {
@@ -118,6 +120,7 @@ export const EditorSection = ({
           onChange={setMarkdown}
           onPaste={onPaste}
           onSelectionChange={onSelectionChange}
+          onSlashTrigger={onSlashTrigger}
           onPushHistory={onPushHistory}
         />
         {floatingToolbar}

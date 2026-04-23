@@ -11,6 +11,7 @@ export interface EditorMethods {
   insertMarkdown: (text: string) => void;
   insertAtLineStart: (prefix: string) => void;
   wrapSelection: (before: string, after?: string) => void;
+  replaceRange: (from: number, to: number, text: string, cursorOffset?: number) => void;
   getSelectionCoords: () => SelectionCoords | null;
 }
 
@@ -30,6 +31,14 @@ export interface SelectionInfo {
   toLine: number;
   text: string;
   empty: boolean;
+}
+
+/** 反斜杠菜单触发信息 */
+export interface SlashTriggerInfo {
+  from: number;
+  to: number;
+  query: string;
+  coords: SelectionCoords | null;
 }
 
 /** 编辑器引用类型 */

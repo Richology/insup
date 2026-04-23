@@ -34,7 +34,11 @@ import { MarkdownToolbar } from "@/components/editor/markdown-toolbar";
 import { PreviewSection } from "@/components/editor/preview-section";
 import { ExportPreviewDialog } from "@/components/editor/export-preview-dialog";
 import { FloatingToolbar } from "@/components/editor/floating-toolbar";
-import type { SelectionInfo } from "@/types";
+import {
+  SlashFormatMenu,
+  type SlashFormatCommandId,
+} from "@/components/editor/slash-format-menu";
+import type { SelectionInfo, SlashTriggerInfo } from "@/types";
 
 export default function InSupEditor() {
   const {
@@ -107,6 +111,7 @@ export default function InSupEditor() {
   >([]);
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
   const [selectionCoords, setSelectionCoords] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+  const [slashTrigger, setSlashTrigger] = useState<SlashTriggerInfo | null>(null);
   const [forcePreviewPageIndex, setForcePreviewPageIndex] = useState<number | undefined>(undefined);
   const [forcePreviewPageNonce, setForcePreviewPageNonce] = useState(0);
 
@@ -190,6 +195,24 @@ export default function InSupEditor() {
   const handleInsertAtLineStart = (prefix: string) => {
     editorRef.current?.insertAtLineStart(prefix);
   };
+
+  const closeSlashMenu = useCallback(() => {
+    setSlashTrigger(null);
+  }, []);
+
+  const replaceSlashTrigger = useCallback(
+    (text: string, cursorOffset = text.length) => {
+      if (!slashTrigger) return;
+      editorRef.current?.replaceRange(
+        slashTrigger.from,
+        slashTrigger.to,
+        text,
+        cursorOffset,
+      );
+      setSlashTrigger(null);
+    },
+    [slashTrigger],
+  );
 
   const handleInsertTable = (rows: number, cols: number) => {
     const header = "| " + Array(cols).fill("标题").join(" | ") + " |";
@@ -386,6 +409,9 @@ export default function InSupEditor() {
   const handleSelectionChange = (info: SelectionInfo) => {
     setSelection(info);
     if (!info.empty) {
+      setSlashTrigger(null);
+    }
+    if (!info.empty) {
       setTimeout(() => {
         const coords = editorRef.current?.getSelectionCoords();
         if (coords) setSelectionCoords(coords);
@@ -394,6 +420,79 @@ export default function InSupEditor() {
       setSelectionCoords(null);
     }
   };
+
+  const handleSlashCommand = useCallback(
+    (commandId: SlashFormatCommandId) => {
+      switch (commandId) {
+        case "heading-1":
+          replaceSlashTrigger("# ");
+          return;
+        case "heading-2":
+          replaceSlashTrigger("## ");
+          return;
+        case "heading-3":
+          replaceSlashTrigger("### ");
+          return;
+        case "heading-4":
+          replaceSlashTrigger("#### ");
+          return;
+        case "heading-5":
+          replaceSlashTrigger("##### ");
+          return;
+        case "heading-6":
+          replaceSlashTrigger("###### ");
+          return;
+        case "strike":
+          replaceSlashTrigger("~~~~", 2);
+          return;
+        case "bold":
+          replaceSlashTrigger("****", 2);
+          return;
+        case "italic":
+          replaceSlashTrigger("**", 1);
+          return;
+        case "underline":
+          replaceSlashTrigger("<u></u>", 3);
+          return;
+        case "inline-code":
+          replaceSlashTrigger("``", 1);
+          return;
+        case "formula":
+          replaceSlashTrigger("$$", 1);
+          return;
+        case "bullet-list":
+          replaceSlashTrigger("- ");
+          return;
+        case "ordered-list":
+          replaceSlashTrigger("1. ");
+          return;
+        case "quote":
+          replaceSlashTrigger("> ");
+          return;
+        case "code-block":
+          replaceSlashTrigger("\n```js\n\n```\n", 8);
+          return;
+        case "divider":
+          replaceSlashTrigger("\n\n---\n\n", 7);
+          return;
+        case "link":
+          replaceSlashTrigger("[](url)", 1);
+          return;
+        case "table":
+          replaceSlashTrigger(
+            "| 标题 | 标题 |\n| --- | --- |\n| 内容 | 内容 |\n",
+            2,
+          );
+          return;
+        case "image":
+          replaceSlashTrigger("![](url)", 2);
+          return;
+        default:
+          return;
+      }
+    },
+    [replaceSlashTrigger],
+  );
 
 
 
@@ -523,15 +622,22 @@ export default function InSupEditor() {
             styleTheme={styleTheme}
             onPushHistory={pushHistory}
             floatingToolbar={
-              <FloatingToolbar
-                isVisible={!!selection && !selection.empty}
-                coords={selectionCoords}
-                onWrapText={handleWrapText}
-                onBold={() => {
-                  if (styleTheme === "poster") handleWrapText("「", "」");
-                  else handleWrapText("**");
-                }}
-              />
+              <>
+                <FloatingToolbar
+                  isVisible={!!selection && !selection.empty}
+                  coords={selectionCoords}
+                  onWrapText={handleWrapText}
+                  onBold={() => {
+                    if (styleTheme === "poster") handleWrapText("「", "」");
+                    else handleWrapText("**");
+                  }}
+                />
+                <SlashFormatMenu
+                  trigger={slashTrigger}
+                  onClose={closeSlashMenu}
+                  onSelect={handleSlashCommand}
+                />
+              </>
             }
             toolbar={
               layoutMode !== "preview" && (
@@ -589,6 +695,7 @@ export default function InSupEditor() {
               )
             }
             onSelectionChange={handleSelectionChange}
+            onSlashTrigger={setSlashTrigger}
             onInsertPageBreak={handleInsertPageBreak}
           />
 
