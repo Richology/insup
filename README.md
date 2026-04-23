@@ -20,6 +20,14 @@ InSup 是 Richology 的内容排版工作台。
 - PPT 横版课件图输出
 - 更贴近 Richology 视觉系统的 UI 重构
 - 更完整的模板与内容结构能力
+- 邮箱注册与账号体系
+- 文档与模板云端沉淀
+
+## 账号接入
+
+- 先配置 `.env` 里的 `NEXT_PUBLIC_SUPABASE_URL` 和 `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- 再把 [supabase/schema.sql](/Users/panlong/insup/supabase/schema.sql) 里的 SQL 执行到 Supabase
+- 现在已经有 [邮箱注册页](/Users/panlong/insup/app/(auth)/sign-up/page.tsx) 和 [邮箱登录页](/Users/panlong/insup/app/(auth)/sign-in/page.tsx)
 
 ## 本地运行
 

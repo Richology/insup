@@ -15,14 +15,22 @@ import {
   ChevronDown,
   Palette,
   Image as ImageIconLucide,
+  Save,
+  CloudCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { WorkspaceAccountMenu } from "@/components/account/workspace-account-menu";
 import { ExportButton } from "@/components/editor/export-button";
 import { InSupLockup } from "@/components/brand/insup-lockup";
+import type {
+  WorkspaceAuthStatus,
+  WorkspaceHistoryItem,
+  WorkspaceProfile,
+} from "@/lib/cloud/account";
 import { POSTER_THEMES } from "@/lib/poster-themes";
 import { WECHAT_THEMES } from "@/lib/themes";
 import { POSTER_FONTS } from "@/lib/fonts";
@@ -49,6 +57,22 @@ interface TopNavProps {
   exportProgress?: { current: number; total: number };
   showWordCount: boolean;
   setShowWordCount: (show: boolean) => void;
+  onSaveDraft: () => void;
+  saveDraftLabel: string;
+  saveStatus: "idle" | "saving" | "success" | "error";
+  authStatus: WorkspaceAuthStatus;
+  accountProfile: WorkspaceProfile | null;
+  historyItems: WorkspaceHistoryItem[];
+  activeDocumentId: string | null;
+  isRefreshingAccount: boolean;
+  isChangingPassword: boolean;
+  isSigningOut: boolean;
+  accountNotice: string | null;
+  accountError: string | null;
+  onRefreshAccount: () => void;
+  onOpenHistoryItem: (id: string) => void;
+  onChangePassword: (password: string) => boolean | Promise<boolean>;
+  onSignOut: () => void | Promise<void>;
 }
 
 export const TopNav = ({
@@ -73,6 +97,22 @@ export const TopNav = ({
   exportProgress,
   showWordCount,
   setShowWordCount,
+  onSaveDraft,
+  saveDraftLabel,
+  saveStatus,
+  authStatus,
+  accountProfile,
+  historyItems,
+  activeDocumentId,
+  isRefreshingAccount,
+  isChangingPassword,
+  isSigningOut,
+  accountNotice,
+  accountError,
+  onRefreshAccount,
+  onOpenHistoryItem,
+  onChangePassword,
+  onSignOut,
 }: TopNavProps) => {
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [showFontPicker, setShowFontPicker] = useState(false);
@@ -478,13 +518,50 @@ export const TopNav = ({
               ? "bg-white text-indigo-500 shadow-sm ring-1 ring-zinc-200"
               : "text-zinc-400 hover:text-zinc-600",
           )}
-        >
+          >
           <FileText className="size-3.5" />
         </Button>
       </div>
 
       <div className="flex items-center gap-3">
         <div className="h-4 w-[1px] bg-zinc-200" />
+
+        <Button
+          onClick={onSaveDraft}
+          disabled={saveStatus === "saving"}
+          variant="ghost"
+          size="sm"
+          className={cn(
+            "h-9 gap-2 rounded-xl px-4 text-xs font-bold transition-all",
+            saveStatus === "success"
+              ? "bg-emerald-50 text-emerald-600"
+              : saveStatus === "error"
+                ? "bg-red-50 text-red-600"
+                : "text-zinc-600 hover:bg-zinc-100",
+          )}
+        >
+          {saveStatus === "saving" ? (
+            <>
+              <Loader2 className="size-3.5 animate-spin" />
+              正在保存
+            </>
+          ) : saveStatus === "success" ? (
+            <>
+              <CloudCheck className="size-3.5" />
+              已保存
+            </>
+          ) : saveStatus === "error" ? (
+            <>
+              <Save className="size-3.5" />
+              保存失败
+            </>
+          ) : (
+            <>
+              <Save className="size-3.5" />
+              {saveDraftLabel}
+            </>
+          )}
+        </Button>
 
         {styleTheme !== "wechat" ? (
           <Button
@@ -541,6 +618,22 @@ export const TopNav = ({
                 ? "复制正文"
                 : "复制 HTML"}
         </Button>
+
+        <WorkspaceAccountMenu
+          authStatus={authStatus}
+          profile={accountProfile}
+          historyItems={historyItems}
+          activeDocumentId={activeDocumentId}
+          isRefreshing={isRefreshingAccount}
+          isChangingPassword={isChangingPassword}
+          isSigningOut={isSigningOut}
+          notice={accountNotice}
+          error={accountError}
+          onRefresh={onRefreshAccount}
+          onOpenHistoryItem={onOpenHistoryItem}
+          onChangePassword={onChangePassword}
+          onSignOut={onSignOut}
+        />
       </div>
     </nav>
   );

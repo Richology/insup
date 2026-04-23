@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import type { AuthChangeEvent, Session, User } from "@supabase/supabase-js";
 import TurndownService from "turndown";
 import { markdownToHtml } from "@/lib/markdown";
 import { getInlinedHtml, getWeChatHtml } from "@/lib/inline_style";
@@ -38,9 +40,38 @@ import {
   SlashFormatMenu,
   type SlashFormatCommandId,
 } from "@/components/editor/slash-format-menu";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
+import {
+  fetchWorkspaceAccountSnapshot,
+  fetchWorkspaceContentItem,
+  type WorkspaceAuthStatus,
+  type WorkspaceHistoryItem,
+  type WorkspaceProfile,
+} from "@/lib/cloud/account";
+import { buildContentSummary, deriveContentTitle } from "@/lib/cloud/content";
 import type { SelectionInfo, SlashTriggerInfo } from "@/types";
 
+function isLayoutMode(value: unknown): value is "split" | "edit" | "preview" {
+  return value === "split" || value === "edit" || value === "preview";
+}
+
+function isPreviewMode(
+  value: unknown,
+): value is "pc" | "app" | "poster" | "slide" {
+  return (
+    value === "pc" ||
+    value === "app" ||
+    value === "poster" ||
+    value === "slide"
+  );
+}
+
+function isStyleTheme(value: unknown): value is "wechat" | "poster" | "slide" {
+  return value === "wechat" || value === "poster" || value === "slide";
+}
+
 export default function InSupEditor() {
+  const router = useRouter();
   const {
     markdown,
     setMarkdown,
@@ -49,6 +80,7 @@ export default function InSupEditor() {
     previewMode,
     setPreviewMode,
     imgRadius,
+    setImgRadius,
     styleTheme,
     setStyleTheme,
     wechatTheme,
@@ -63,6 +95,10 @@ export default function InSupEditor() {
     posterShowFooter,
     showWordCount,
     setShowWordCount,
+    activeCloudDocumentId,
+    activeCloudUserId,
+    setActiveCloudDocument,
+    clearActiveCloudDocument,
     undo,
     redo,
     pushHistory,
@@ -95,6 +131,20 @@ export default function InSupEditor() {
   );
   const [isUploading, setIsUploading] = useState(false);
   const [isExportingPoster, setIsExportingPoster] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "success" | "error">(
+    "idle",
+  );
+  const [authStatus, setAuthStatus] = useState<WorkspaceAuthStatus>("loading");
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [accountProfile, setAccountProfile] = useState<WorkspaceProfile | null>(
+    null,
+  );
+  const [historyItems, setHistoryItems] = useState<WorkspaceHistoryItem[]>([]);
+  const [isRefreshingAccount, setIsRefreshingAccount] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [accountNotice, setAccountNotice] = useState<string | null>(null);
+  const [accountError, setAccountError] = useState<string | null>(null);
   const [exportProgress, setExportProgress] = useState<
     { current: number; total: number } | undefined
   >(undefined);
@@ -259,13 +309,105 @@ export default function InSupEditor() {
     return () => clearTimeout(timer);
   }, [markdown, styleTheme, showWordCount, setHtml]);
 
-  const handleToggleWordCount = (show: boolean) => {
-    setShowWordCount(show);
-    if (show) {
-      setForcePreviewPageIndex(0);
-      setForcePreviewPageNonce((prev) => prev + 1);
+  const handleToggleWordCount = useCallback(
+    (show: boolean) => {
+      setShowWordCount(show);
+      if (show) {
+        setForcePreviewPageIndex(0);
+        setForcePreviewPageNonce((prev) => prev + 1);
+      }
+    },
+    [setShowWordCount],
+  );
+
+  const loadAccountSnapshot = useCallback(
+    async (user: User, options?: { silent?: boolean }) => {
+      const supabase = getSupabaseBrowserClient();
+      if (!supabase) {
+        setAuthStatus("disabled");
+        return;
+      }
+
+      if (!options?.silent) {
+        setIsRefreshingAccount(true);
+      }
+
+      try {
+        const snapshot = await fetchWorkspaceAccountSnapshot(supabase, user);
+        setAccountProfile(snapshot.profile);
+        setHistoryItems(snapshot.history);
+        setAccountError(null);
+      } catch (error) {
+        console.error("Load account snapshot failed:", error);
+        setAccountError("账户信息加载失败，请稍后重试。");
+      } finally {
+        if (!options?.silent) {
+          setIsRefreshingAccount(false);
+        }
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    const supabase = getSupabaseBrowserClient();
+
+    if (!supabase) {
+      setAuthStatus("disabled");
+      return;
     }
-  };
+
+    let isMounted = true;
+
+    const syncUserState = async (nextUser?: User | null) => {
+      const resolvedUser =
+        nextUser !== undefined
+          ? nextUser
+          : (await supabase.auth.getUser()).data.user ?? null;
+
+      if (!isMounted) return;
+
+      if (!resolvedUser) {
+        setCurrentUser(null);
+        setAuthStatus("signed-out");
+        setAccountProfile(null);
+        setHistoryItems([]);
+        return;
+      }
+
+      if (
+        activeCloudDocumentId &&
+        activeCloudUserId &&
+        activeCloudUserId !== resolvedUser.id
+      ) {
+        clearActiveCloudDocument();
+      }
+
+      setCurrentUser(resolvedUser);
+      setAuthStatus("signed-in");
+      await loadAccountSnapshot(resolvedUser);
+    };
+
+    void syncUserState();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(
+      (_event: AuthChangeEvent, session: Session | null) => {
+      void syncUserState(session?.user ?? null);
+      },
+    );
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [
+    activeCloudDocumentId,
+    activeCloudUserId,
+    clearActiveCloudDocument,
+    loadAccountSnapshot,
+  ]);
 
   const handleCopy = useCallback(async () => {
     try {
@@ -300,6 +442,250 @@ export default function InSupEditor() {
       setCopyStatus("error");
     }
   }, [activeWechatContainerStyle, isVisualMode, markdown, showWordCount]);
+
+  const handleRefreshAccount = useCallback(() => {
+    if (!currentUser) return;
+    void loadAccountSnapshot(currentUser);
+  }, [currentUser, loadAccountSnapshot]);
+
+  const handleOpenHistoryItem = useCallback(
+    async (id: string) => {
+      const supabase = getSupabaseBrowserClient();
+
+      if (!supabase || !currentUser) {
+        return;
+      }
+
+      try {
+        const item = await fetchWorkspaceContentItem(supabase, currentUser, id);
+        const nextStyleTheme =
+          item.tags.find((tag) => isStyleTheme(tag)) ??
+          (item.themeId === "slide" ? "slide" : "wechat");
+        const nextPreviewMode = isPreviewMode(item.metadata.previewMode)
+          ? item.metadata.previewMode
+          : nextStyleTheme === "slide"
+            ? "slide"
+            : nextStyleTheme === "poster"
+              ? "poster"
+              : "app";
+
+        pushHistory();
+        setMarkdown(item.bodyMarkdown);
+        setStyleTheme(nextStyleTheme);
+        setPreviewMode(nextPreviewMode);
+
+        if (isLayoutMode(item.layoutMode)) {
+          setLayoutMode(item.layoutMode);
+        }
+
+        if (nextStyleTheme === "wechat" && item.themeId) {
+          setWechatTheme(item.themeId);
+        }
+
+        if (nextStyleTheme === "poster" && item.themeId) {
+          setPosterTheme(item.themeId);
+        }
+
+        if (typeof item.metadata.posterFont === "string") {
+          setPosterFont(item.metadata.posterFont);
+        }
+
+        if (typeof item.metadata.showWordCount === "boolean") {
+          handleToggleWordCount(item.metadata.showWordCount);
+        }
+
+        if (typeof item.metadata.imgRadius === "number") {
+          setImgRadius(item.metadata.imgRadius);
+        }
+
+        setActiveCloudDocument(item.id, currentUser.id);
+        setSaveStatus("idle");
+        setAccountError(null);
+        setAccountNotice(`已载入《${item.title}》`);
+      } catch (error) {
+        console.error("Open history item failed:", error);
+        setAccountError("读取历史草稿失败，请稍后重试。");
+      }
+    },
+    [
+      currentUser,
+      pushHistory,
+      setActiveCloudDocument,
+      setImgRadius,
+      setLayoutMode,
+      setMarkdown,
+      setPosterFont,
+      setPosterTheme,
+      setPreviewMode,
+      setStyleTheme,
+      setWechatTheme,
+      handleToggleWordCount,
+    ],
+  );
+
+  const handleChangePassword = useCallback(async (password: string) => {
+    const supabase = getSupabaseBrowserClient();
+
+    if (!supabase) {
+      setAccountError("账户服务尚未配置，暂时无法修改密码。");
+      return false;
+    }
+
+    setIsChangingPassword(true);
+    setAccountError(null);
+
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) {
+        setAccountError(error.message);
+        return false;
+      }
+
+      setAccountNotice("密码已更新，下次登录请使用新密码。");
+      return true;
+    } catch (error) {
+      console.error("Update password failed:", error);
+      setAccountError("密码更新失败，请稍后再试。");
+      return false;
+    } finally {
+      setIsChangingPassword(false);
+    }
+  }, []);
+
+  const handleSignOut = useCallback(async () => {
+    const supabase = getSupabaseBrowserClient();
+
+    if (!supabase) {
+      setAuthStatus("disabled");
+      return;
+    }
+
+    setIsSigningOut(true);
+    setAccountError(null);
+
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        setAccountError(error.message);
+        return;
+      }
+
+      clearActiveCloudDocument();
+      setCurrentUser(null);
+      setAccountProfile(null);
+      setHistoryItems([]);
+      setAuthStatus("signed-out");
+      setAccountNotice("已退出账号，当前回到本地模式。");
+      router.refresh();
+    } finally {
+      setIsSigningOut(false);
+    }
+  }, [clearActiveCloudDocument, router]);
+
+  const handleSaveDraft = useCallback(async () => {
+    setSaveStatus("saving");
+    setAccountError(null);
+    try {
+      const supabase = getSupabaseBrowserClient();
+      if (!supabase) {
+        setSaveStatus("error");
+        setAccountError("账户服务尚未配置，暂时无法保存到云端。");
+        return;
+      }
+
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      const user = userData.user;
+      if (userError || !user) {
+        setSaveStatus("error");
+        setAccountNotice("登录后就能把当前内容保存到云端。");
+        router.push("/auth");
+        return;
+      }
+
+      const title = deriveContentTitle(markdown);
+      const summary = buildContentSummary(markdown);
+      const payload = {
+        user_id: user.id,
+        kind: "document",
+        title,
+        body_markdown: markdown,
+        summary,
+        theme_id:
+          styleTheme === "wechat"
+            ? wechatTheme
+            : styleTheme === "poster"
+              ? posterTheme
+              : "slide",
+        layout_mode: layoutMode,
+        tags: [styleTheme],
+        metadata: {
+          previewMode,
+          posterFont,
+          showWordCount,
+          imgRadius,
+          source: "workspace",
+        },
+      };
+
+      const shouldUpdateCurrentDraft =
+        !!activeCloudDocumentId && activeCloudUserId === user.id;
+
+      const request = shouldUpdateCurrentDraft
+        ? supabase
+            .from("content_items")
+            .update(payload)
+            .eq("id", activeCloudDocumentId)
+            .eq("user_id", user.id)
+            .select("id, title")
+            .single()
+        : supabase
+            .from("content_items")
+            .insert(payload)
+            .select("id, title")
+            .single();
+
+      const { data, error } = await request;
+
+      if (error) {
+        setSaveStatus("error");
+        console.error("Save draft failed:", error);
+        setAccountError("云端保存失败，请稍后再试。");
+        return;
+      }
+
+      if (data) {
+        setActiveCloudDocument(data.id, user.id);
+      }
+
+      setSaveStatus("success");
+      setAccountNotice(
+        shouldUpdateCurrentDraft
+          ? `已更新云端草稿《${title}》`
+          : `已创建云端草稿《${title}》`,
+      );
+      await loadAccountSnapshot(user, { silent: true });
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (error) {
+      console.error("Save draft failed:", error);
+      setSaveStatus("error");
+      setAccountError("云端保存失败，请稍后再试。");
+    }
+  }, [
+    activeCloudDocumentId,
+    activeCloudUserId,
+    imgRadius,
+    layoutMode,
+    loadAccountSnapshot,
+    markdown,
+    posterFont,
+    posterTheme,
+    previewMode,
+    router,
+    setActiveCloudDocument,
+    showWordCount,
+    styleTheme,
+    wechatTheme,
+  ]);
 
   // 键盘快捷键支持
   useEffect(() => {
@@ -578,6 +964,18 @@ export default function InSupEditor() {
     }
   };
 
+  const isLinkedCloudDraft =
+    authStatus === "signed-in" &&
+    !!currentUser &&
+    !!activeCloudDocumentId &&
+    activeCloudUserId === currentUser.id;
+  const saveDraftLabel =
+    authStatus !== "signed-in"
+      ? "登录后保存"
+      : isLinkedCloudDraft
+        ? "更新云端草稿"
+        : "保存云端";
+
   return (
     <div
       className="flex h-screen flex-col overflow-hidden bg-[#f7f7f5] selection:bg-zinc-900 selection:text-white"
@@ -605,6 +1003,22 @@ export default function InSupEditor() {
         exportProgress={exportProgress}
         showWordCount={showWordCount}
         setShowWordCount={handleToggleWordCount}
+        onSaveDraft={handleSaveDraft}
+        saveDraftLabel={saveDraftLabel}
+        saveStatus={saveStatus}
+        authStatus={authStatus}
+        accountProfile={accountProfile}
+        historyItems={historyItems}
+        activeDocumentId={isLinkedCloudDraft ? activeCloudDocumentId : null}
+        isRefreshingAccount={isRefreshingAccount}
+        isChangingPassword={isChangingPassword}
+        isSigningOut={isSigningOut}
+        accountNotice={accountNotice}
+        accountError={accountError}
+        onRefreshAccount={handleRefreshAccount}
+        onOpenHistoryItem={handleOpenHistoryItem}
+        onChangePassword={handleChangePassword}
+        onSignOut={handleSignOut}
       />
 
       <main className="relative flex flex-1 gap-6 overflow-hidden px-6 pb-6 pt-4">

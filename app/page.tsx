@@ -246,13 +246,23 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#f7f7f5] text-zinc-900 selection:bg-zinc-900 selection:text-white">
       <header className="sticky top-0 z-50 border-b border-zinc-200/80 bg-[#f7f7f5]/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-screen-xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-screen-xl items-center justify-between gap-4 px-6 py-4">
           <Brand />
-          <Link href="/workspace">
-            <Button className="rounded-full bg-zinc-900 px-6 text-white hover:bg-zinc-800">
-              进入工作台
+          <div className="flex items-center gap-3">
+            <Button
+              asChild
+              variant="outline"
+              className="rounded-full border-zinc-200 bg-white px-5 text-zinc-700 shadow-sm hover:border-zinc-300 hover:bg-white"
+            >
+              <Link href="/auth">登录</Link>
             </Button>
-          </Link>
+            <Button
+              asChild
+              className="rounded-full bg-zinc-900 px-6 text-white hover:bg-zinc-800"
+            >
+              <Link href="/workspace">进入工作台</Link>
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -285,10 +295,17 @@ export default function LandingPage() {
                 transition={{ delay: 0.15 }}
                 className="flex flex-wrap items-center gap-4"
               >
-                <Link href="/workspace">
-                  <Button className="h-12 rounded-full bg-zinc-900 px-8 text-sm font-bold text-white hover:bg-zinc-800">
-                    开始创作
-                  </Button>
+                <Button
+                  asChild
+                  className="h-12 rounded-full bg-zinc-900 px-8 text-sm font-bold text-white hover:bg-zinc-800"
+                >
+                  <Link href="/workspace">开始创作</Link>
+                </Button>
+                <Link
+                  href="/auth?mode=sign-up"
+                  className="text-sm font-bold text-zinc-500 transition-colors hover:text-zinc-950"
+                >
+                  邮箱注册，后续同步文档与模板
                 </Link>
               </motion.div>
 

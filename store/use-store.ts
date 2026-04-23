@@ -6,6 +6,8 @@ interface AppState {
   markdown: string;
   html: string;
   imgRadius: number;
+  activeCloudDocumentId: string | null;
+  activeCloudUserId: string | null;
   previewMode: 'pc' | 'app' | 'poster' | 'slide';
   styleTheme: 'wechat' | 'poster' | 'slide';
   wechatTheme: string;
@@ -21,6 +23,8 @@ interface AppState {
   setMarkdown: (markdown: string | ((prev: string) => string)) => void;
   setHtml: (html: string) => void;
   setImgRadius: (radius: number) => void;
+  setActiveCloudDocument: (documentId: string, userId: string) => void;
+  clearActiveCloudDocument: () => void;
   setPreviewMode: (mode: 'pc' | 'app' | 'poster' | 'slide') => void;
   setStyleTheme: (theme: 'wechat' | 'poster' | 'slide') => void;
   setWechatTheme: (id: string) => void;
@@ -80,6 +84,8 @@ export const useStore = create<AppState>()(
       markdown: INITIAL_MARKDOWN,
       html: "",
       imgRadius: 12,
+      activeCloudDocumentId: null,
+      activeCloudUserId: null,
       previewMode: 'app',
       styleTheme: 'wechat',
       wechatTheme: 'default',
@@ -97,6 +103,10 @@ export const useStore = create<AppState>()(
       })),
       setHtml: (html) => set({ html }),
       setImgRadius: (imgRadius) => set({ imgRadius }),
+      setActiveCloudDocument: (activeCloudDocumentId, activeCloudUserId) =>
+        set({ activeCloudDocumentId, activeCloudUserId }),
+      clearActiveCloudDocument: () =>
+        set({ activeCloudDocumentId: null, activeCloudUserId: null }),
       setPreviewMode: (previewMode) => set({ previewMode }),
       setStyleTheme: (styleTheme) => set({ styleTheme }),
       setPosterShowHeader: (posterShowHeader) => set({ posterShowHeader }),
@@ -150,6 +160,8 @@ export const useStore = create<AppState>()(
       partialize: (state) => ({
         markdown: state.markdown,
         imgRadius: state.imgRadius,
+        activeCloudDocumentId: state.activeCloudDocumentId,
+        activeCloudUserId: state.activeCloudUserId,
         styleTheme: state.styleTheme,
         wechatTheme: state.wechatTheme,
         posterTheme: state.posterTheme,
